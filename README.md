@@ -1,0 +1,2 @@
+# minifac
+Experimental factory game
