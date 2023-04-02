@@ -24,6 +24,10 @@ func (c *Conveyor) Size() grid.Size {
 	return grid.S(1, 1)
 }
 
+func (c *Conveyor) Dir() grid.Direction {
+	return c.dir
+}
+
 func (c *Conveyor) ProduceAtPositions(base grid.Position) []grid.Position {
 	var pos grid.Position
 	switch c.dir {

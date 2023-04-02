@@ -1,14 +1,29 @@
 package main
 
 import (
-	"time"
+	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazzegi/minifac"
 	"github.com/mazzegi/minifac/grid"
+	"github.com/mazzegi/minifac/ui"
 )
 
 func main() {
-	size := grid.S(32, 32)
+
+	uni := setupUniverse()
+	ui := ui.NewUI(uni)
+
+	ebiten.SetWindowSize(640, 640)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowTitle("MiniFAC")
+	if err := ebiten.RunGame(ui); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func setupUniverse() *minifac.Universe {
+	size := grid.S(16, 16)
 
 	u := minifac.NewUniverse(size)
 	u.AddObject(minifac.NewIncarnationProducer("prod_iron", minifac.Iron, minifac.NewRate(1, 2), 2), grid.P(1, 1))
@@ -35,11 +50,5 @@ func main() {
 
 	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(10, 3))
 
-	ticks := 200
-	tickSleep := 500 * time.Millisecond
-	for i := 0; i < ticks; i++ {
-		minifac.Log("*** tick %02d ***", i+1)
-		u.Tick()
-		<-time.After(tickSleep)
-	}
+	return u
 }

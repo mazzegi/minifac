@@ -84,14 +84,20 @@ type Object[T any] struct {
 	Rectangle
 }
 
-func New[T any]() *Grid[T] {
+func New[T any](size Size) *Grid[T] {
 	return &Grid[T]{
+		size:    size,
 		objects: map[Position]*Object[T]{},
 	}
 }
 
 type Grid[T any] struct {
+	size    Size
 	objects map[Position]*Object[T]
+}
+
+func (g *Grid[T]) Size() Size {
+	return g.size
 }
 
 func (g *Grid[T]) CanAddRectangle(r Rectangle) bool {

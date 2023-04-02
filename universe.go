@@ -32,9 +32,9 @@ type Object interface {
 	Name() string
 }
 
-func NewUniverse() *Universe {
+func NewUniverse(size grid.Size) *Universe {
 	u := &Universe{
-		grid: grid.New[Object](),
+		grid: grid.New[Object](size),
 	}
 	return u
 }
@@ -43,9 +43,17 @@ type Universe struct {
 	grid *grid.Grid[Object]
 }
 
+func (u *Universe) Size() grid.Size {
+	return u.grid.Size()
+}
+
 func (u *Universe) AddObject(o Object, at grid.Position) error {
 	r := grid.R(at, o.Size())
 	return u.grid.Add(o, r)
+}
+
+func (u *Universe) AllObjects() []*grid.Object[Object] {
+	return u.grid.Objects()
 }
 
 func (u *Universe) Tick() {
