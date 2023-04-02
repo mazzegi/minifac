@@ -2,19 +2,23 @@ package ui
 
 import (
 	"fmt"
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/mazzegi/minifac"
 )
 
-func NewUI(uni *minifac.Universe) *UI {
+const menuWidth = 180
+
+func New(uni *minifac.Universe) *UI {
 	ui := &UI{
 		eventHandler: NewHandler(),
 		universe:     uni,
 		imageHandler: NewImageHandler(uni),
-		ticker:       time.NewTicker(100 * time.Millisecond),
+		ticker:       time.NewTicker(500 * time.Millisecond),
 	}
 	ui.eventHandler.OnMouseLeftClicked(func(p Pos) {
 		x, y := p.X/int(ui.scaleX), p.Y/int(ui.scaleY)
@@ -28,7 +32,7 @@ func NewUI(uni *minifac.Universe) *UI {
 type UI struct {
 	dx, dy         int
 	scaleX, scaleY float64
-	eventHandler   *Handler
+	eventHandler   *EventHandler
 	universe       *minifac.Universe
 	imageHandler   *ImageHandler
 	ticker         *time.Ticker
@@ -44,6 +48,14 @@ func (ui *UI) Update() error {
 	return nil
 }
 
+func (ui *UI) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	ui.dx = outsideWidth - menuWidth
+	ui.dy = outsideHeight
+	sz := ui.universe.Size()
+	ui.scaleX, ui.scaleY = float64(ui.dx)/float64(sz.DX), float64(ui.dy)/float64(sz.DY)
+	return outsideWidth, outsideHeight
+}
+
 func (ui *UI) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("%.2f", ebiten.ActualTPS()))
 	pimgs := ui.imageHandler.Images()
@@ -56,12 +68,22 @@ func (ui *UI) Draw(screen *ebiten.Image) {
 		opts.GeoM.Translate(ui.scaleX*float64(pimg.Position.X), ui.scaleY*float64(pimg.Position.Y))
 		screen.DrawImage(pimg.Image, opts)
 	}
+	ui.DrawMenu(screen)
 }
 
-func (ui *UI) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	ui.dx = outsideWidth
-	ui.dy = outsideHeight
-	sz := ui.universe.Size()
-	ui.scaleX, ui.scaleY = float64(ui.dx)/float64(sz.DX), float64(ui.dy)/float64(sz.DY)
-	return outsideWidth, outsideHeight
+func (ui *UI) DrawMenu(screen *ebiten.Image) {
+	menuImg := ebiten.NewImage(menuWidth, screen.Bounds().Dy())
+	menuImg.Fill(color.RGBA{0, 0, 255, 255})
+
+	//pause button
+	btnImg := ebiten.NewImage(menuWidth-16, 32)
+	vector.DrawFilledRect(btnImg, 0, 0, menuWidth-16, 32, color.RGBA{128, 128, 128, 255}, true)
+	btnopts := &ebiten.DrawImageOptions{}
+	btnopts.GeoM.Translate(8, 32)
+	menuImg.DrawImage(btnImg, btnopts)
+
+	//
+	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Translate(float64(screen.Bounds().Dx()-menuWidth), 0)
+	screen.DrawImage(menuImg, opts)
 }

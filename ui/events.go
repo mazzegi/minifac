@@ -40,13 +40,13 @@ func (cbs KeyCallbacks) Call(k ebiten.Key) {
 }
 
 // NewHandler
-func NewHandler() *Handler {
-	h := &Handler{}
+func NewHandler() *EventHandler {
+	h := &EventHandler{}
 	h.mousePos = h.cursorPosition()
 	return h
 }
 
-type Handler struct {
+type EventHandler struct {
 	mousePos           Pos
 	mouseLeftDown      *Pos
 	mouseRightDown     *Pos
@@ -58,28 +58,28 @@ type Handler struct {
 	cbsKeyUp           KeyCallbacks
 }
 
-func (h *Handler) cursorPosition() Pos {
+func (h *EventHandler) cursorPosition() Pos {
 	x, y := ebiten.CursorPosition()
 	return Pos{x, y}
 }
 
-func (h *Handler) OnMouseMove(cb MouseCallback) {
+func (h *EventHandler) OnMouseMove(cb MouseCallback) {
 	h.cbsMouseMove = append(h.cbsMouseMove, cb)
 }
 
-func (h *Handler) OnMouseLeftClicked(cb MouseCallback) {
+func (h *EventHandler) OnMouseLeftClicked(cb MouseCallback) {
 	h.cbsMouseLeftClick = append(h.cbsMouseLeftClick, cb)
 }
 
-func (h *Handler) OnMouseRightClicked(cb MouseCallback) {
+func (h *EventHandler) OnMouseRightClicked(cb MouseCallback) {
 	h.cbsMouseRightClick = append(h.cbsMouseRightClick, cb)
 }
 
-func (h *Handler) OnKeyDown(cb KeyCallback) {
+func (h *EventHandler) OnKeyDown(cb KeyCallback) {
 	h.cbsKeyDown = append(h.cbsKeyDown, cb)
 }
 
-func (h *Handler) OnKeyUp(cb KeyCallback) {
+func (h *EventHandler) OnKeyUp(cb KeyCallback) {
 	h.cbsKeyUp = append(h.cbsKeyUp, cb)
 }
 
@@ -92,7 +92,7 @@ func keysContain(rs []ebiten.Key, r ebiten.Key) bool {
 	return false
 }
 
-func (h *Handler) Update() {
+func (h *EventHandler) Update() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if h.mouseLeftDown == nil {
 			x, y := ebiten.CursorPosition()

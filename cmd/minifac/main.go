@@ -12,10 +12,11 @@ import (
 func main() {
 
 	uni := setupUniverse()
-	ui := ui.NewUI(uni)
+	ui := ui.New(uni)
 
 	ebiten.SetWindowSize(640, 640)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+	ebiten.SetWindowSizeLimits(800, 640, 800, 640)
 	ebiten.SetWindowTitle("MiniFAC")
 	if err := ebiten.RunGame(ui); err != nil {
 		log.Fatal(err)
@@ -47,8 +48,13 @@ func setupUniverse() *minifac.Universe {
 	u.AddObject(minifac.NewAssembler("ass_steel", minifac.ReceiptSteel(), 5, 5), grid.P(7, 3))
 	u.AddObject(minifac.NewConveyor("conv_steel_1", grid.East, 1), grid.P(8, 3))
 	u.AddObject(minifac.NewConveyor("conv_steel_2", grid.East, 1), grid.P(9, 3))
+	u.AddObject(minifac.NewConveyor("conv_steel_3", grid.East, 1), grid.P(10, 3))
+	u.AddObject(minifac.NewConveyor("conv_steel_4", grid.East, 1), grid.P(11, 3))
+	u.AddObject(minifac.NewConveyor("conv_steel_5", grid.East, 1), grid.P(12, 3))
+	u.AddObject(minifac.NewConveyor("conv_steel_6", grid.East, 1), grid.P(13, 3))
+	u.AddObject(minifac.NewConveyor("conv_steel_7", grid.East, 1), grid.P(14, 3))
 
-	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(10, 3))
+	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(15, 3))
 
 	return u
 }
