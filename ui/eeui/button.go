@@ -9,10 +9,11 @@ import (
 	"golang.org/x/image/font"
 )
 
-func NewButton(text string) *Button {
+func NewButton(text string, evts *EventHandler) *Button {
 	return &Button{
 		text:   text,
 		margin: 8,
+		events: evts,
 	}
 }
 
@@ -20,6 +21,15 @@ type Button struct {
 	text   string
 	margin int
 	rect   image.Rectangle
+	events *EventHandler
+}
+
+func (b *Button) OnClick(fn func()) {
+	b.events.OnMouseLeftClicked(func(p image.Point) {
+		if p.In(b.rect) {
+			fn()
+		}
+	})
 }
 
 func (c *Button) Resize(ctx *ResizeContext) {

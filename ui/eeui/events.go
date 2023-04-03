@@ -7,18 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-// type Pos struct {
-// 	X, Y int
-// }
-
-// func (p Pos) String() string {
-// 	return fmt.Sprintf("%d, %d", p.X, p.Y)
-// }
-
-// func NewPos(x, y int) Pos {
-// 	return Pos{x, y}
-// }
-
 // Events
 type (
 	MouseCallback  func(image.Point)

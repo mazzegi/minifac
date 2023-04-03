@@ -15,9 +15,19 @@ const menuWidth = 180
 
 func New(uni *minifac.Universe) *UI {
 	evts := eeui.NewHandler()
+
+	btn1 := eeui.NewButton("button 1", evts)
+	btn1.OnClick(func() {
+		fmt.Printf("button 1 clicked\n")
+	})
+	btn2 := eeui.NewButton("button 2", evts)
+	btn2.OnClick(func() {
+		fmt.Printf("button 2 clicked\n")
+	})
+
 	layout := eeui.NewVBoxLayout(
-		eeui.NewButton("button 1"),
-		eeui.NewButton("button 2"),
+		btn1,
+		btn2,
 	)
 
 	font := mustLoadFont("fonts/inter/Inter-Medium.ttf")

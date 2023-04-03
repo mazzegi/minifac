@@ -49,10 +49,7 @@ func NewImageHandler(u *minifac.Universe) *ImageHandler {
 	}
 	for _, it := range allImageTypes {
 		path := filepath.Join("assets", string(it))
-		img, err := loadImageAsset(path)
-		if err != nil {
-			panic(fmt.Errorf("loading image %q", path))
-		}
+		img := mustLoadImageAsset(path)
 		ih.images[it] = img
 	}
 	return ih
