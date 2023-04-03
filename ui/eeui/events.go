@@ -1,33 +1,33 @@
 package eeui
 
 import (
-	"fmt"
+	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Pos struct {
-	X, Y int
-}
+// type Pos struct {
+// 	X, Y int
+// }
 
-func (p Pos) String() string {
-	return fmt.Sprintf("%d, %d", p.X, p.Y)
-}
+// func (p Pos) String() string {
+// 	return fmt.Sprintf("%d, %d", p.X, p.Y)
+// }
 
-func NewPos(x, y int) Pos {
-	return Pos{x, y}
-}
+// func NewPos(x, y int) Pos {
+// 	return Pos{x, y}
+// }
 
 // Events
 type (
-	MouseCallback  func(Pos)
+	MouseCallback  func(image.Point)
 	MouseCallbacks []MouseCallback
 	KeyCallback    func(ebiten.Key)
 	KeyCallbacks   []KeyCallback
 )
 
-func (cbs MouseCallbacks) Call(p Pos) {
+func (cbs MouseCallbacks) Call(p image.Point) {
 	for _, cb := range cbs {
 		cb(p)
 	}
@@ -47,9 +47,9 @@ func NewHandler() *EventHandler {
 }
 
 type EventHandler struct {
-	mousePos           Pos
-	mouseLeftDown      *Pos
-	mouseRightDown     *Pos
+	mousePos           image.Point
+	mouseLeftDown      *image.Point
+	mouseRightDown     *image.Point
 	keysPressed        []ebiten.Key
 	cbsMouseMove       MouseCallbacks
 	cbsMouseLeftClick  MouseCallbacks
@@ -58,9 +58,9 @@ type EventHandler struct {
 	cbsKeyUp           KeyCallbacks
 }
 
-func (h *EventHandler) cursorPosition() Pos {
+func (h *EventHandler) cursorPosition() image.Point {
 	x, y := ebiten.CursorPosition()
-	return Pos{x, y}
+	return image.Point{x, y}
 }
 
 func (h *EventHandler) OnMouseMove(cb MouseCallback) {
@@ -95,8 +95,8 @@ func keysContain(rs []ebiten.Key, r ebiten.Key) bool {
 func (h *EventHandler) Update() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if h.mouseLeftDown == nil {
-			x, y := ebiten.CursorPosition()
-			h.mouseLeftDown = &Pos{x, y}
+			p := image.Pt(ebiten.CursorPosition())
+			h.mouseLeftDown = &p
 		}
 	} else {
 		if h.mouseLeftDown != nil {
@@ -107,8 +107,8 @@ func (h *EventHandler) Update() {
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) {
 		if h.mouseRightDown == nil {
-			x, y := ebiten.CursorPosition()
-			h.mouseRightDown = &Pos{x, y}
+			p := image.Pt(ebiten.CursorPosition())
+			h.mouseRightDown = &p
 		}
 	} else {
 		if h.mouseRightDown != nil {

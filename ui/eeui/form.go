@@ -1,29 +1,53 @@
 package eeui
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"image"
 
-type Layout interface{}
+	"github.com/goki/freetype/truetype"
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
-type Widget interface{}
+type Widget interface {
+	// Draw(screen *ebiten.Image)
+	// Resize(x, y, width, height int)
 
-func NewForm(layout Layout, evts EventHandler) *Form {
+	Draw(ctx *DrawContext)
+	Resize(ctx *ResizeContext)
+}
+
+func NewForm(widget Widget, evts *EventHandler, font *truetype.Font) *Form {
 	f := &Form{
 		events: evts,
-		layout: layout,
+		font:   font,
+		widget: widget,
 	}
 	return f
 }
 
 type Form struct {
-	dx, dy int
-	events EventHandler
-	layout Layout
+	rect   image.Rectangle
+	events *EventHandler
+	font   *truetype.Font
+	widget Widget
 }
 
-func (f *Form) Resize(width, height int) {
-	f.dx, f.dy = width, height
+func (f *Form) Resize(x, y, width, height int) {
+	f.rect = image.Rect(x, y, x+width, y+height)
+	f.widget.Resize(&ResizeContext{Rect: f.rect})
 }
 
 func (f *Form) Draw(screen *ebiten.Image) {
+	f.widget.Draw(&DrawContext{
+		Screen: screen,
+		Font:   f.font,
+	})
+}
 
+type ResizeContext struct {
+	Rect image.Rectangle
+}
+
+type DrawContext struct {
+	Screen *ebiten.Image
+	Font   *truetype.Font
 }

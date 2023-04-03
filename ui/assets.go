@@ -37,3 +37,11 @@ func loadImageAsset(path string) (*ebiten.Image, error) {
 	}
 	return ebiten.NewImageFromImage(img), nil
 }
+
+func mustLoadImageAsset(path string) *ebiten.Image {
+	img, err := loadImageAsset(path)
+	if err != nil {
+		panic(err)
+	}
+	return img
+}

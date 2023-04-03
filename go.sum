@@ -2,6 +2,8 @@ github.com/ebitengine/purego v0.3.0 h1:BDv9pD98k6AuGNQf3IF41dDppGBOe0F4AofvhFtBX
 github.com/ebitengine/purego v0.3.0/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b h1:GgabKamyOYguHqHjSkDACcgoPIz3w0Dis/zJ1wyHHHU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
+github.com/goki/freetype v1.0.1 h1:10DgpEu+QEh/hpvAxgx//RT8ayWwHJI+nZj3QNcn8uk=
+github.com/goki/freetype v1.0.1/go.mod h1:ni9Dgz8vA6o+13u1Ke0q3kJcCJ9GuXb1dtlfKho98vs=
 github.com/hajimehoshi/ebiten/v2 v2.5.0 h1:jnz5dngMflIbsIZoj19Vs4zF3kDv1hPUFSeu4r0hIpY=
 github.com/hajimehoshi/ebiten/v2 v2.5.0/go.mod h1:mnHSOVysTr/nUZrN1lBTRqhK4NG+T9NR3JsJP2rCppk=
 github.com/jezek/xgb v1.1.0 h1:wnpxJzP1+rkbGclEkmwpVFQWpuE2PUGNUzP8SbfFobk=
