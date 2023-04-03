@@ -7,12 +7,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type Widget interface {
-	// Draw(screen *ebiten.Image)
-	// Resize(x, y, width, height int)
+type SizeHint struct {
+	MaxWidth  int
+	MaxHeight int
+}
 
+type Widget interface {
 	Draw(ctx *DrawContext)
 	Resize(ctx *ResizeContext)
+	SizeHint() SizeHint
 }
 
 func NewForm(widget Widget, evts *EventHandler, font *truetype.Font) *Form {

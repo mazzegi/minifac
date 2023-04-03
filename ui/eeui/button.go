@@ -57,6 +57,12 @@ func (b *Button) OnClick(fn func()) {
 	})
 }
 
+func (c *Button) SizeHint() SizeHint {
+	return SizeHint{
+		MaxHeight: 64,
+	}
+}
+
 func (c *Button) Resize(ctx *ResizeContext) {
 	c.rect = ctx.Rect
 }
@@ -105,7 +111,7 @@ func (c *Button) drawText(ctx *DrawContext) {
 	height2 := int(math.Ceil(float64(theight) / (64)))
 
 	x := (ctx.Screen.Bounds().Dx() - int(width2)) / 2
-	y := (ctx.Screen.Bounds().Dy() - height2) / 2
+	y := height2*3/4 + (ctx.Screen.Bounds().Dy()-height2)/2
 
 	pt := freetype.Pt(x, y)
 	_, err := fctx.DrawString(c.text, pt)
