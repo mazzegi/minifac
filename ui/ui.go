@@ -9,18 +9,19 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/mazzegi/minifac"
+	"github.com/mazzegi/minifac/ui/eeui"
 )
 
 const menuWidth = 180
 
 func New(uni *minifac.Universe) *UI {
 	ui := &UI{
-		eventHandler: NewHandler(),
+		eventHandler: eeui.NewHandler(),
 		universe:     uni,
 		imageHandler: NewImageHandler(uni),
 		ticker:       time.NewTicker(500 * time.Millisecond),
 	}
-	ui.eventHandler.OnMouseLeftClicked(func(p Pos) {
+	ui.eventHandler.OnMouseLeftClicked(func(p eeui.Pos) {
 		x, y := p.X/int(ui.scaleX), p.Y/int(ui.scaleY)
 		//ui.universe.OnLeftClick(Position{x, y})
 		_, _ = x, y
@@ -32,7 +33,7 @@ func New(uni *minifac.Universe) *UI {
 type UI struct {
 	dx, dy         int
 	scaleX, scaleY float64
-	eventHandler   *EventHandler
+	eventHandler   *eeui.EventHandler
 	universe       *minifac.Universe
 	imageHandler   *ImageHandler
 	ticker         *time.Ticker
