@@ -47,13 +47,29 @@ func (u *Universe) Size() grid.Size {
 	return u.grid.Size()
 }
 
+func (u *Universe) ContainsPosition(p grid.Position) bool {
+	return u.grid.ContainsPosition(p)
+}
+
 func (u *Universe) AddObject(o Object, at grid.Position) error {
 	r := grid.R(at, o.Size())
 	return u.grid.Add(o, r)
 }
 
+func (u *Universe) DeleteAt(p grid.Position) {
+	u.grid.DeleteAt(p)
+}
+
 func (u *Universe) AllObjects() []*grid.Object[Object] {
 	return u.grid.Objects()
+}
+
+func (u *Universe) ObjectAt(p grid.Position) (*grid.Object[Object], bool) {
+	o := u.grid.ObjectAt(p)
+	if o == nil {
+		return nil, false
+	}
+	return o, true
 }
 
 func (u *Universe) Tick() {

@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/mazzegi/minifac"
+	"github.com/mazzegi/minifac/grid"
 	"github.com/mazzegi/minifac/ui/eeui"
 )
 
@@ -23,6 +24,7 @@ func New(uni *minifac.Universe) *UI {
 		running:      false,
 	}
 	ui.ticker.Stop()
+	//evts.OnMouseRightClicked()
 
 	btn1 := eeui.NewButton("start", evts)
 	btn1.OnClick(func() {
@@ -45,19 +47,19 @@ func New(uni *minifac.Universe) *UI {
 
 	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 32, 32, evts)
 	btnConvEast.OnClick(func() {
-		fmt.Printf("conveyor-east selected\n")
+		ui.selectedItem = ImageTypeConveyor_east
 	})
 	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 32, 32, evts)
 	btnConvSouth.OnClick(func() {
-		fmt.Printf("conveyor-South selected\n")
+		ui.selectedItem = ImageTypeConveyor_south
 	})
 	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 32, 32, evts)
 	btnConvWest.OnClick(func() {
-		fmt.Printf("conveyor-West selected\n")
+		ui.selectedItem = ImageTypeConveyor_west
 	})
 	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 32, 32, evts)
 	btnConvNorth.OnClick(func() {
-		fmt.Printf("conveyor-North selected\n")
+		ui.selectedItem = ImageTypeConveyor_north
 	})
 	convLayout := eeui.NewHBoxLayout(
 		eeui.BoxLayoutStyles{
@@ -84,10 +86,29 @@ func New(uni *minifac.Universe) *UI {
 	menu := eeui.NewForm(layout, evts, font)
 	ui.menu = menu
 
+	ui.eventHandler.OnMouseRightClicked(func(p image.Point) {
+		x, y := p.X/int(ui.scaleX), p.Y/int(ui.scaleY)
+		ui.universe.DeleteAt(grid.P(x, y))
+	})
 	ui.eventHandler.OnMouseLeftClicked(func(p image.Point) {
 		x, y := p.X/int(ui.scaleX), p.Y/int(ui.scaleY)
-		//ui.universe.OnLeftClick(Position{x, y})
-		_, _ = x, y
+		pos := grid.P(x, y)
+		if !ui.universe.ContainsPosition(pos) {
+			return
+		}
+		exobj, ok := ui.universe.ObjectAt(pos)
+		if !ok {
+			// add new object
+			obj, err := CreateObject(ui.selectedItem)
+			if err != nil {
+				minifac.Log("ERROR: create-object: %v", err)
+				return
+			}
+			ui.universe.AddObject(obj, pos)
+		} else {
+			//display info
+			minifac.Log("info for: %s", exobj.Value.Name())
+		}
 	})
 
 	return ui
@@ -102,6 +123,7 @@ type UI struct {
 	ticker         *time.Ticker
 	running        bool
 	menu           *eeui.Form
+	selectedItem   ImageType
 }
 
 func (ui *UI) Update() error {
@@ -136,11 +158,5 @@ func (ui *UI) Draw(screen *ebiten.Image) {
 		opts.GeoM.Translate(ui.scaleX*float64(pimg.Position.X), ui.scaleY*float64(pimg.Position.Y))
 		screen.DrawImage(pimg.Image, opts)
 	}
-
-	//menuScreen := ebiten.NewImage(menuWidth, screen.Bounds().Dy())
-	// ui.menu.Draw(menuScreen)
-	// drawMenuOpts := &ebiten.DrawImageOptions{}
-	// drawMenuOpts.GeoM.Translate(float64(screen.Bounds().Dx()-menuWidth), 0)
-	// screen.DrawImage(menuScreen, drawMenuOpts)
 	ui.menu.Draw(screen)
 }

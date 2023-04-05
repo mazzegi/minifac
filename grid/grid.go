@@ -100,6 +100,11 @@ func (g *Grid[T]) Size() Size {
 	return g.size
 }
 
+func (g *Grid[T]) ContainsPosition(p Position) bool {
+	return p.X >= 0 && p.X < g.size.DX &&
+		p.Y >= 0 && p.Y < g.size.DY
+}
+
 func (g *Grid[T]) CanAddRectangle(r Rectangle) bool {
 	for _, p := range r.Positions() {
 		if _, occ := g.objects[p]; occ {
@@ -118,6 +123,10 @@ func (g *Grid[T]) Add(t T, r Rectangle) error {
 		g.objects[p] = o
 	}
 	return nil
+}
+
+func (g *Grid[T]) DeleteAt(p Position) {
+	delete(g.objects, p)
 }
 
 func (g *Grid[T]) ObjectAt(p Position) *Object[T] {
