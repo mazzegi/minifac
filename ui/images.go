@@ -42,14 +42,18 @@ type PositionedImage struct {
 	Image    *ebiten.Image
 }
 
+func mustLoadImage(typ ImageType) *ebiten.Image {
+	path := filepath.Join("assets", string(typ))
+	return mustLoadImageAsset(path)
+}
+
 func NewImageHandler(u *minifac.Universe) *ImageHandler {
 	ih := &ImageHandler{
 		universe: u,
 		images:   make(map[ImageType]*ebiten.Image),
 	}
 	for _, it := range allImageTypes {
-		path := filepath.Join("assets", string(it))
-		img := mustLoadImageAsset(path)
+		img := mustLoadImage(it)
 		ih.images[it] = img
 	}
 	return ih

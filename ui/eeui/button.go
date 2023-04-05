@@ -14,7 +14,7 @@ import (
 
 var (
 	ButtonColorNormal = color.RGBA{160, 160, 160, 255}
-	ButtonColorHover  = color.RGBA{128, 128, 128, 255}
+	//ButtonColorHover  = color.RGBA{128, 128, 128, 255}
 )
 
 type ButtonState byte
@@ -27,7 +27,6 @@ const (
 func NewButton(text string, evts *EventHandler) *Button {
 	b := &Button{
 		text:   text,
-		margin: 8,
 		events: evts,
 		state:  ButtonStateNormal,
 	}
@@ -43,7 +42,6 @@ func NewButton(text string, evts *EventHandler) *Button {
 
 type Button struct {
 	text   string
-	margin int
 	rect   image.Rectangle
 	events *EventHandler
 	state  ButtonState
@@ -55,6 +53,10 @@ func (b *Button) OnClick(fn func()) {
 			fn()
 		}
 	})
+}
+
+func (b *Button) ChangeText(text string) {
+	b.text = text
 }
 
 func (c *Button) SizeHint() SizeHint {
@@ -69,17 +71,17 @@ func (c *Button) Resize(ctx *ResizeContext) {
 
 func (c *Button) Draw(ctx *DrawContext) {
 	screen := ctx.Screen
-	w, h := float32(c.rect.Dx()-2*c.margin), float32(c.rect.Dy()-2*c.margin)
+	w, h := float32(c.rect.Dx()), float32(c.rect.Dy())
 
-	var cr color.Color
+	var cr color.RGBA
 	switch c.state {
 	case ButtonStateHover:
-		cr = ButtonColorHover
+		cr = ButtonColorNormal
 	default:
 		cr = ButtonColorNormal
 	}
 
-	vector.DrawFilledRect(screen, float32(c.margin), float32(c.margin), w, h, cr, true)
+	vector.DrawFilledRect(screen, 0, 0, w, h, cr, true)
 	c.drawText(ctx)
 }
 

@@ -15,31 +15,75 @@ const menuWidth = 180
 
 func New(uni *minifac.Universe) *UI {
 	evts := eeui.NewHandler()
+	ui := &UI{
+		eventHandler: evts,
+		universe:     uni,
+		imageHandler: NewImageHandler(uni),
+		ticker:       time.NewTicker(500 * time.Millisecond),
+		running:      false,
+	}
+	ui.ticker.Stop()
 
-	btn1 := eeui.NewButton("button 1", evts)
+	btn1 := eeui.NewButton("start", evts)
 	btn1.OnClick(func() {
-		fmt.Printf("button 1 clicked\n")
+		switch {
+		case !ui.running:
+			ui.running = true
+			ui.ticker.Reset(500 * time.Millisecond)
+			btn1.ChangeText("stop")
+		default: //running
+			ui.running = false
+			ui.ticker.Stop()
+			btn1.ChangeText("start")
+		}
+
 	})
 	btn2 := eeui.NewButton("button 2", evts)
 	btn2.OnClick(func() {
 		fmt.Printf("button 2 clicked\n")
 	})
 
+	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 32, 32, evts)
+	btnConvEast.OnClick(func() {
+		fmt.Printf("conveyor-east selected\n")
+	})
+	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 32, 32, evts)
+	btnConvSouth.OnClick(func() {
+		fmt.Printf("conveyor-South selected\n")
+	})
+	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 32, 32, evts)
+	btnConvWest.OnClick(func() {
+		fmt.Printf("conveyor-West selected\n")
+	})
+	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 32, 32, evts)
+	btnConvNorth.OnClick(func() {
+		fmt.Printf("conveyor-North selected\n")
+	})
+	convLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+		},
+		btnConvEast,
+		btnConvSouth,
+		btnConvWest,
+		btnConvNorth,
+	)
+
 	layout := eeui.NewVBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+		},
 		btn1,
 		btn2,
+		convLayout,
 	)
 
 	font := mustLoadFont("fonts/inter/Inter-Medium.ttf")
 	menu := eeui.NewForm(layout, evts, font)
+	ui.menu = menu
 
-	ui := &UI{
-		eventHandler: evts,
-		universe:     uni,
-		imageHandler: NewImageHandler(uni),
-		ticker:       time.NewTicker(500 * time.Millisecond),
-		menu:         menu,
-	}
 	ui.eventHandler.OnMouseLeftClicked(func(p image.Point) {
 		x, y := p.X/int(ui.scaleX), p.Y/int(ui.scaleY)
 		//ui.universe.OnLeftClick(Position{x, y})
@@ -56,6 +100,7 @@ type UI struct {
 	universe       *minifac.Universe
 	imageHandler   *ImageHandler
 	ticker         *time.Ticker
+	running        bool
 	menu           *eeui.Form
 }
 
