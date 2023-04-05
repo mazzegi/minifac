@@ -2,8 +2,6 @@ package eeui
 
 import (
 	"image"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 func VSplitRectBySizeHints(r image.Rectangle, sty BoxLayoutStyles, sizeHints []SizeHint) []image.Rectangle {
@@ -78,7 +76,6 @@ func VSplitRect(r image.Rectangle, n int) []image.Rectangle {
 		if i == n-1 {
 			hi = r.Dy() - yo
 		}
-		//rs[i] = image.Rectangle{r.X, yo, r.W, hi}
 		rs[i] = image.Rect(r.Min.X, yo, r.Min.X+r.Dx(), yo+hi)
 		yo += hi
 	}
@@ -138,24 +135,14 @@ func (c *VBoxLayout) Resize(ctx *ResizeContext) {
 	for i, w := range c.widgets {
 		wr := rs[i]
 		w.Resize(&ResizeContext{
-			Rect: image.Rect(wr.Min.X, wr.Min.Y, wr.Min.X+wr.Dx(), wr.Min.Y+wr.Dy()),
+			Rect: wr,
 		})
 	}
 }
 
 func (c *VBoxLayout) Draw(ctx *DrawContext) {
-	screen := ctx.Screen
-	rs := VSplitRectBySizeHints(c.rect, c.styles, c.sizeHints())
-	for i, w := range c.widgets {
-		wr := rs[i]
-		wimg := ebiten.NewImage(wr.Dx(), wr.Dy())
-		w.Draw(&DrawContext{
-			Screen: wimg,
-			Font:   ctx.Font,
-		})
-		opts := &ebiten.DrawImageOptions{}
-		opts.GeoM.Translate(float64(c.styles.Padding), float64(c.styles.Padding)+float64(wr.Min.Y))
-		screen.DrawImage(wimg, opts)
+	for _, w := range c.widgets {
+		w.Draw(ctx)
 	}
 }
 
@@ -191,23 +178,13 @@ func (c *HBoxLayout) Resize(ctx *ResizeContext) {
 	for i, w := range c.widgets {
 		wr := rs[i]
 		w.Resize(&ResizeContext{
-			Rect: image.Rect(wr.Min.X, wr.Min.Y, wr.Min.X+wr.Dx(), wr.Min.Y+wr.Dy()),
+			Rect: wr,
 		})
 	}
 }
 
 func (c *HBoxLayout) Draw(ctx *DrawContext) {
-	screen := ctx.Screen
-	rs := HSplitRectBySizeHints(c.rect, c.styles, c.sizeHints())
-	for i, w := range c.widgets {
-		wr := rs[i]
-		wimg := ebiten.NewImage(wr.Dx(), wr.Dy())
-		w.Draw(&DrawContext{
-			Screen: wimg,
-			Font:   ctx.Font,
-		})
-		opts := &ebiten.DrawImageOptions{}
-		opts.GeoM.Translate(float64(c.styles.Padding)+float64(wr.Min.X), float64(c.styles.Padding))
-		screen.DrawImage(wimg, opts)
+	for _, w := range c.widgets {
+		w.Draw(ctx)
 	}
 }

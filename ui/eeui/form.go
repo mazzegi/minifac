@@ -13,8 +13,8 @@ type SizeHint struct {
 }
 
 type Widget interface {
-	Draw(ctx *DrawContext)
-	Resize(ctx *ResizeContext)
+	Draw(ctx *DrawContext)     // Draw hast to take its absolute position into account
+	Resize(ctx *ResizeContext) // Resizes to absolute screen position
 	SizeHint() SizeHint
 }
 
@@ -36,7 +36,9 @@ type Form struct {
 
 func (f *Form) Resize(x, y, width, height int) {
 	f.rect = image.Rect(x, y, x+width, y+height)
-	f.widget.Resize(&ResizeContext{Rect: f.rect})
+	f.widget.Resize(&ResizeContext{
+		Rect: f.rect,
+	})
 }
 
 func (f *Form) Draw(screen *ebiten.Image) {

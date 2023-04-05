@@ -59,12 +59,6 @@ func (c *ImageButton) Resize(ctx *ResizeContext) {
 func (c *ImageButton) Draw(ctx *DrawContext) {
 	screen := ctx.Screen
 	opts := &ebiten.DrawImageOptions{}
-	// scaleX := float64(screen.Bounds().Dx()) / float64(c.dx)
-	// scaleY := float64(screen.Bounds().Dy()) / float64(c.dy)
-	// scale := scaleX
-	// if scaleY < scaleX {
-	// 	scale = scaleY
-	// }
-	// opts.GeoM.Scale(scale, scale)
+	opts.GeoM.Translate(float64(c.rect.Min.X), float64(c.rect.Min.Y))
 	screen.DrawImage(c.img, opts)
 }

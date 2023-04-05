@@ -71,7 +71,6 @@ func (c *Button) Resize(ctx *ResizeContext) {
 
 func (c *Button) Draw(ctx *DrawContext) {
 	screen := ctx.Screen
-	w, h := float32(c.rect.Dx()), float32(c.rect.Dy())
 
 	var cr color.RGBA
 	switch c.state {
@@ -81,7 +80,9 @@ func (c *Button) Draw(ctx *DrawContext) {
 		cr = ButtonColorNormal
 	}
 
-	vector.DrawFilledRect(screen, 0, 0, w, h, cr, true)
+	x, y := float32(c.rect.Min.X), float32(c.rect.Min.Y)
+	w, h := float32(c.rect.Dx()), float32(c.rect.Dy())
+	vector.DrawFilledRect(screen, x, y, w, h, cr, true)
 	c.drawText(ctx)
 }
 
@@ -112,8 +113,8 @@ func (c *Button) drawText(ctx *DrawContext) {
 	width2 := int(math.Ceil(float64(twidth) / (64)))
 	height2 := int(math.Ceil(float64(theight) / (64)))
 
-	x := (ctx.Screen.Bounds().Dx() - int(width2)) / 2
-	y := height2*3/4 + (ctx.Screen.Bounds().Dy()-height2)/2
+	x := c.rect.Min.X + (c.rect.Dx()-int(width2))/2
+	y := c.rect.Min.Y + height2*3/4 + (c.rect.Dy()-height2)/2
 
 	pt := freetype.Pt(x, y)
 	_, err := fctx.DrawString(c.text, pt)

@@ -136,27 +136,11 @@ func (ui *UI) Draw(screen *ebiten.Image) {
 		opts.GeoM.Translate(ui.scaleX*float64(pimg.Position.X), ui.scaleY*float64(pimg.Position.Y))
 		screen.DrawImage(pimg.Image, opts)
 	}
-	//ui.DrawMenu(screen)
-	menuScreen := ebiten.NewImage(menuWidth, screen.Bounds().Dy())
-	ui.menu.Draw(menuScreen)
-	drawMenuOpts := &ebiten.DrawImageOptions{}
-	drawMenuOpts.GeoM.Translate(float64(screen.Bounds().Dx()-menuWidth), 0)
-	screen.DrawImage(menuScreen, drawMenuOpts)
+
+	//menuScreen := ebiten.NewImage(menuWidth, screen.Bounds().Dy())
+	// ui.menu.Draw(menuScreen)
+	// drawMenuOpts := &ebiten.DrawImageOptions{}
+	// drawMenuOpts.GeoM.Translate(float64(screen.Bounds().Dx()-menuWidth), 0)
+	// screen.DrawImage(menuScreen, drawMenuOpts)
+	ui.menu.Draw(screen)
 }
-
-// func (ui *UI) DrawMenu(screen *ebiten.Image) {
-// 	menuImg := ebiten.NewImage(menuWidth, screen.Bounds().Dy())
-// 	menuImg.Fill(color.RGBA{0, 0, 255, 255})
-
-// 	//pause button
-// 	btnImg := ebiten.NewImage(menuWidth-16, 32)
-// 	vector.DrawFilledRect(btnImg, 0, 0, menuWidth-16, 32, color.RGBA{128, 128, 128, 255}, true)
-// 	btnopts := &ebiten.DrawImageOptions{}
-// 	btnopts.GeoM.Translate(8, 32)
-// 	menuImg.DrawImage(btnImg, btnopts)
-
-// 	//
-// 	opts := &ebiten.DrawImageOptions{}
-// 	opts.GeoM.Translate(float64(screen.Bounds().Dx()-menuWidth), 0)
-// 	screen.DrawImage(menuImg, opts)
-// }
