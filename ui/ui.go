@@ -72,6 +72,24 @@ func New(uni *minifac.Universe) *UI {
 		btnConvNorth,
 	)
 
+	var prodBtns []eeui.Widget
+	for _, bres := range minifac.BaseResources() {
+		bres := bres
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeProducer, resourceImageType(bres)), 32, 32, evts)
+		btn.OnClick(func() {
+			ui.selectedItem = ImageTypeProducer
+			ui.selectedResource = bres
+		})
+		prodBtns = append(prodBtns, btn)
+	}
+	prodLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+		},
+		prodBtns...,
+	)
+
 	layout := eeui.NewVBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
@@ -80,6 +98,7 @@ func New(uni *minifac.Universe) *UI {
 		btn1,
 		btn2,
 		convLayout,
+		prodLayout,
 	)
 
 	font := mustLoadFont("fonts/inter/Inter-Medium.ttf")
@@ -99,7 +118,7 @@ func New(uni *minifac.Universe) *UI {
 		exobj, ok := ui.universe.ObjectAt(pos)
 		if !ok {
 			// add new object
-			obj, err := CreateObject(ui.selectedItem)
+			obj, err := CreateObject(ui.selectedItem, ui.selectedResource)
 			if err != nil {
 				minifac.Log("ERROR: create-object: %v", err)
 				return
@@ -115,15 +134,16 @@ func New(uni *minifac.Universe) *UI {
 }
 
 type UI struct {
-	dx, dy         int
-	scaleX, scaleY float64
-	eventHandler   *eeui.EventHandler
-	universe       *minifac.Universe
-	imageHandler   *ImageHandler
-	ticker         *time.Ticker
-	running        bool
-	menu           *eeui.Form
-	selectedItem   ImageType
+	dx, dy           int
+	scaleX, scaleY   float64
+	eventHandler     *eeui.EventHandler
+	universe         *minifac.Universe
+	imageHandler     *ImageHandler
+	ticker           *time.Ticker
+	running          bool
+	menu             *eeui.Form
+	selectedItem     ImageType
+	selectedResource minifac.Resource
 }
 
 func (ui *UI) Update() error {

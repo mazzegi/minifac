@@ -14,9 +14,9 @@ func main() {
 	uni := setupUniverse()
 	ui := ui.New(uni)
 
-	ebiten.SetWindowSize(640, 640)
+	ebiten.SetWindowSize(800, 640)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowSizeLimits(800, 640, 800, 640)
+	ebiten.SetWindowSizeLimits(800, 640, -1, -1)
 	ebiten.SetWindowTitle("MiniFAC")
 	if err := ebiten.RunGame(ui); err != nil {
 		log.Fatal(err)

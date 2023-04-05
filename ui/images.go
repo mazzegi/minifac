@@ -19,7 +19,10 @@ const (
 	ImageTypeConveyor_north ImageType = "conveyor_north.png"
 	ImageTypeConveyor_south ImageType = "conveyor_south.png"
 	ImageTypeConveyor_west  ImageType = "conveyor_west.png"
+	ImageTypeWood           ImageType = "wood.png"
 	ImageTypeCoal           ImageType = "coal.png"
+	ImageTypeStone          ImageType = "stone.png"
+	ImageTypeIronOre        ImageType = "ironore.png"
 	ImageTypeIron           ImageType = "iron.png"
 	ImageTypeSteel          ImageType = "steel.png"
 )
@@ -32,9 +35,31 @@ var allImageTypes = []ImageType{
 	ImageTypeConveyor_north,
 	ImageTypeConveyor_south,
 	ImageTypeConveyor_west,
+	ImageTypeWood,
 	ImageTypeCoal,
+	ImageTypeStone,
+	ImageTypeIronOre,
 	ImageTypeIron,
 	ImageTypeSteel,
+}
+
+func resourceImageType(res minifac.Resource) ImageType {
+	switch res {
+	case minifac.Wood:
+		return ImageTypeWood
+	case minifac.Stone:
+		return ImageTypeStone
+	case minifac.Coal:
+		return ImageTypeCoal
+	case minifac.IronOre:
+		return ImageTypeIronOre
+	case minifac.Iron:
+		return ImageTypeIron
+	case minifac.Steel:
+		return ImageTypeSteel
+	default:
+		return ""
+	}
 }
 
 type PositionedImage struct {
@@ -99,13 +124,8 @@ func (h *ImageHandler) Images() []*PositionedImage {
 				panic(fmt.Errorf("unknown direction %v", obj.Dir()))
 			}
 			res := obj.Resource()
-			switch res {
-			case minifac.Coal:
-				img = createOverlayImage(img, h.images[ImageTypeCoal])
-			case minifac.Iron:
-				img = createOverlayImage(img, h.images[ImageTypeIron])
-			case minifac.Steel:
-				img = createOverlayImage(img, h.images[ImageTypeSteel])
+			if ovlImg, ok := h.images[resourceImageType(res)]; ok {
+				img = h.createOverlayImage(img, ovlImg)
 			}
 
 			imgs = append(imgs, &PositionedImage{
@@ -120,7 +140,7 @@ func (h *ImageHandler) Images() []*PositionedImage {
 	return imgs
 }
 
-func createOverlayImage(base *ebiten.Image, overlay *ebiten.Image) *ebiten.Image {
+func (h *ImageHandler) createOverlayImage(base *ebiten.Image, overlay *ebiten.Image) *ebiten.Image {
 	img := ebiten.NewImageFromImage(base)
 	baseBounds := base.Bounds()
 	overlayBounds := overlay.Bounds()
@@ -128,6 +148,23 @@ func createOverlayImage(base *ebiten.Image, overlay *ebiten.Image) *ebiten.Image
 	y := (baseBounds.Dy() - overlayBounds.Dy()) / 2
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(float64(x), float64(y))
+	img.DrawImage(overlay, opts)
+	return img
+}
+
+func (h *ImageHandler) createThumbnailOverlay(baseType ImageType, overlayType ImageType) *ebiten.Image {
+	base := h.images[baseType]
+	overlay := h.images[overlayType]
+
+	img := ebiten.NewImageFromImage(base)
+	baseBounds := base.Bounds()
+
+	//overlay should be in the bottom half of base
+	overlayHeight := baseBounds.Dy() / 2
+	scaleY := float64(overlayHeight) / float64(overlay.Bounds().Dy())
+	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Scale(scaleY, scaleY)
+	//opts.GeoM.Translate(float64(x), float64(y))
 	img.DrawImage(overlay, opts)
 	return img
 }
