@@ -26,6 +26,7 @@ func New(uni *minifac.Universe) *UI {
 	ui.ticker.Stop()
 	//evts.OnMouseRightClicked()
 
+	infoBox := eeui.NewTextBox("here goes some text", evts)
 	btn1 := eeui.NewButton("start", evts)
 	btn1.OnClick(func() {
 		switch {
@@ -99,12 +100,13 @@ func New(uni *minifac.Universe) *UI {
 	layout := eeui.NewVBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
-			Gap:     4,
+			Gap:     12,
 		},
 		btn1,
 		btn2,
 		convLayout,
 		prodLayout,
+		infoBox,
 	)
 
 	font := mustLoadFont("fonts/inter/Inter-Medium.ttf")
@@ -133,6 +135,7 @@ func New(uni *minifac.Universe) *UI {
 		} else {
 			//display info
 			minifac.Log("info for: %s", exobj.Value.Name())
+			infoBox.ChangeText(fmt.Sprintf("item: %s", exobj.Value.Name()))
 		}
 	})
 
