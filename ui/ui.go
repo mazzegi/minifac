@@ -65,6 +65,9 @@ func New(uni *minifac.Universe) *UI {
 		eeui.BoxLayoutStyles{
 			Padding: 4,
 			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 40,
+			},
 		},
 		btnConvEast,
 		btnConvSouth,
@@ -86,6 +89,9 @@ func New(uni *minifac.Universe) *UI {
 		eeui.BoxLayoutStyles{
 			Padding: 4,
 			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 40,
+			},
 		},
 		prodBtns...,
 	)

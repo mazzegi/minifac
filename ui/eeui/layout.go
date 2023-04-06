@@ -100,8 +100,9 @@ func HSplitRect(r image.Rectangle, n int) []image.Rectangle {
 }
 
 type BoxLayoutStyles struct {
-	Padding int
-	Gap     int
+	Padding  int
+	Gap      int
+	SizeHint SizeHint
 }
 
 func NewVBoxLayout(styles BoxLayoutStyles, ws ...Widget) *VBoxLayout {
@@ -118,7 +119,7 @@ type VBoxLayout struct {
 }
 
 func (c *VBoxLayout) SizeHint() SizeHint {
-	return SizeHint{}
+	return c.styles.SizeHint
 }
 
 func (c *VBoxLayout) sizeHints() []SizeHint {
@@ -161,7 +162,7 @@ type HBoxLayout struct {
 }
 
 func (c *HBoxLayout) SizeHint() SizeHint {
-	return SizeHint{}
+	return c.styles.SizeHint
 }
 
 func (c *HBoxLayout) sizeHints() []SizeHint {
