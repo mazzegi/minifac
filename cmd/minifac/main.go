@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	uni := setupUniverse2()
+	uni := setupUniverse()
 	mfui := ui.New(uni)
 
 	ebiten.SetWindowSize(1024+ui.MenuWidth, 1024)

@@ -24,7 +24,6 @@ func New(uni *minifac.Universe) *UI {
 		running:      false,
 	}
 	ui.ticker.Stop()
-	//evts.OnMouseRightClicked()
 
 	infoBox := eeui.NewTextBox(evts)
 	selectItem := func(ty ImageType, res minifac.Resource) {
@@ -32,51 +31,89 @@ func New(uni *minifac.Universe) *UI {
 		ui.selectedResource = res
 		infoBox.ChangeTextFunc(func() []string {
 			return []string{
-				fmt.Sprintf("Selected:"),
+				"Selected:",
 				fmt.Sprintf("Item    : %s", ty),
 				fmt.Sprintf("Resource: %s", res),
 			}
 		})
 	}
 
-	btn1 := eeui.NewButton("start", evts)
-	btn1.OnClick(func() {
+	baseTickerTime := 500 * time.Millisecond
+	tickerTime := baseTickerTime
+	resetTicker := func(d time.Duration) {
+		tickerTime = d
+		infoBox.ChangeTextFunc(func() []string {
+			return []string{
+				fmt.Sprintf("Ticker: %s", d),
+			}
+		})
+		if ui.running {
+			ui.ticker.Reset(d)
+		}
+	}
+
+	startBtn := eeui.NewButton("start", evts)
+	startBtn.OnClick(func() {
 		switch {
 		case !ui.running:
 			ui.running = true
-			ui.ticker.Reset(500 * time.Millisecond)
-			btn1.ChangeText("stop")
+			resetTicker(tickerTime)
+			startBtn.ChangeText("stop")
 		default: //running
 			ui.running = false
 			ui.ticker.Stop()
-			btn1.ChangeText("start")
+			startBtn.ChangeText("start")
 		}
+	})
+	startLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 48,
+			},
+		},
+		startBtn,
+	)
 
+	btnBase := eeui.NewButton("Base Speed", evts)
+	btnBase.OnClick(func() {
+		resetTicker(baseTickerTime)
 	})
-	btn2 := eeui.NewButton("button 2", evts)
-	btn2.OnClick(func() {
-		fmt.Printf("button 2 clicked\n")
+	btnFaster := eeui.NewButton("Faster", evts)
+	btnFaster.OnClick(func() {
+		tickerTime -= 50 * time.Millisecond
+		if tickerTime < 50*time.Millisecond {
+			tickerTime = 50 * time.Millisecond
+		}
+		resetTicker(tickerTime)
 	})
+	tickerLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 48,
+			},
+		},
+		btnBase, btnFaster,
+	)
 
 	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 48, 48, evts)
 	btnConvEast.OnClick(func() {
 		selectItem(ImageTypeConveyor_east, minifac.None)
-		//ui.selectedItem = ImageTypeConveyor_east
 	})
 	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 48, 48, evts)
 	btnConvSouth.OnClick(func() {
 		selectItem(ImageTypeConveyor_south, minifac.None)
-		//ui.selectedItem = ImageTypeConveyor_south
 	})
 	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 48, 48, evts)
 	btnConvWest.OnClick(func() {
 		selectItem(ImageTypeConveyor_west, minifac.None)
-		//ui.selectedItem = ImageTypeConveyor_west
 	})
 	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 48, 48, evts)
 	btnConvNorth.OnClick(func() {
 		selectItem(ImageTypeConveyor_north, minifac.None)
-		//ui.selectedItem = ImageTypeConveyor_north
 	})
 	convLayout := eeui.NewHBoxLayout(
 		eeui.BoxLayoutStyles{
@@ -99,8 +136,6 @@ func New(uni *minifac.Universe) *UI {
 		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeProducer, resourceImageType(bres)), 48, 48, evts)
 		btn.OnClick(func() {
 			selectItem(ImageTypeProducer, bres)
-			// ui.selectedItem = ImageTypeProducer
-			// ui.selectedResource = bres
 		})
 		prodBtns = append(prodBtns, btn)
 	}
@@ -122,8 +157,6 @@ func New(uni *minifac.Universe) *UI {
 		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(rec.Output)), 48, 48, evts)
 		btn.OnClick(func() {
 			selectItem(ImageTypeAssembler, rec.Output)
-			// ui.selectedItem = ImageTypeAssembler
-			// ui.selectedResource = rec.Output
 		})
 		assBtns = append(assBtns, btn)
 	}
@@ -144,8 +177,6 @@ func New(uni *minifac.Universe) *UI {
 		btn := eeui.NewImageButton(ui.imageHandler.images[ImageTypeTrash], 48, 48, evts)
 		btn.OnClick(func() {
 			selectItem(ImageTypeTrash, minifac.None)
-			// ui.selectedItem = ImageTypeTrash
-			// ui.selectedResource = minifac.None
 		})
 		miscBtns = append(miscBtns, btn)
 	}
@@ -165,8 +196,8 @@ func New(uni *minifac.Universe) *UI {
 			Padding: 4,
 			Gap:     24,
 		},
-		btn1,
-		btn2,
+		startLayout,
+		tickerLayout,
 		convLayout,
 		prodLayout,
 		assLayout,
