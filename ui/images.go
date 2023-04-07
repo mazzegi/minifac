@@ -26,6 +26,7 @@ const (
 	ImageTypeIronOre        ImageType = "ironore.png"
 	ImageTypeIron           ImageType = "iron.png"
 	ImageTypeSteel          ImageType = "steel.png"
+	ImageTypeWall           ImageType = "wall.png"
 )
 
 var allImageTypes = []ImageType{
@@ -43,6 +44,7 @@ var allImageTypes = []ImageType{
 	ImageTypeIronOre,
 	ImageTypeIron,
 	ImageTypeSteel,
+	ImageTypeWall,
 }
 
 func resourceImageType(res minifac.Resource) ImageType {
@@ -115,6 +117,14 @@ func (h *ImageHandler) Images() []*PositionedImage {
 				Position: gobj.Position,
 				Image:    h.images[ImageTypeTrash],
 			})
+		case *minifac.Obstacle:
+			switch obj.Type() {
+			default:
+				imgs = append(imgs, &PositionedImage{
+					Position: gobj.Position,
+					Image:    h.images[ImageTypeWall],
+				})
+			}
 		case *minifac.Finalizer:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,

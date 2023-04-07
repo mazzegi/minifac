@@ -31,8 +31,16 @@ func main() {
 
 func setupUniverse() *minifac.Universe {
 	size := grid.S(16, 16)
-
 	u := minifac.NewUniverse(size)
+	for x := 0; x < 16; x++ {
+		u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(x, 0))
+		u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(x, 15))
+	}
+	for y := 1; y < 15; y++ {
+		u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(0, y))
+		u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(15, y))
+	}
+
 	u.AddObject(minifac.NewIncarnationProducer("prod_iron", minifac.Iron, minifac.NewRate(1, 2), 2), grid.P(1, 1))
 	u.AddObject(minifac.NewConveyor("conv_iron_1", grid.East, 1), grid.P(2, 1))
 	u.AddObject(minifac.NewConveyor("conv_iron_2", grid.East, 1), grid.P(3, 1))
@@ -57,10 +65,10 @@ func setupUniverse() *minifac.Universe {
 	u.AddObject(minifac.NewConveyor("conv_steel_3", grid.East, 1), grid.P(10, 3))
 	u.AddObject(minifac.NewConveyor("conv_steel_4", grid.East, 1), grid.P(11, 3))
 	u.AddObject(minifac.NewConveyor("conv_steel_5", grid.East, 1), grid.P(12, 3))
-	u.AddObject(minifac.NewConveyor("conv_steel_6", grid.East, 1), grid.P(13, 3))
-	u.AddObject(minifac.NewConveyor("conv_steel_7", grid.East, 1), grid.P(14, 3))
 
-	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(15, 3))
+	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(13, 3))
+	u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(4, 10))
+	u.AddObject(minifac.NewObstacle("wall", minifac.ObstacleWall), grid.P(5, 10))
 
 	return u
 }

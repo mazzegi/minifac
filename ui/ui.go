@@ -3,10 +3,12 @@ package ui
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/mazzegi/minifac"
 	"github.com/mazzegi/minifac/grid"
 	"github.com/mazzegi/minifac/ui/eeui"
@@ -262,12 +264,27 @@ type UI struct {
 	scaleX, scaleY   float64
 	eventHandler     *eeui.EventHandler
 	universe         *minifac.Universe
+	backgroundImg    *ebiten.Image
 	imageHandler     *ImageHandler
 	ticker           *time.Ticker
 	running          bool
 	menu             *eeui.Form
 	selectedItem     ImageType
 	selectedResource minifac.Resource
+}
+
+func (ui *UI) createBackground() {
+	img := ebiten.NewImage(ui.dx, ui.dy)
+	sz := ui.universe.Size()
+	for ux := 0; ux < sz.DX; ux++ {
+		x := ui.scaleX * float64(ux)
+		vector.StrokeLine(img, float32(x), 0, float32(x), float32(ui.dy), 1, color.RGBA{0, 0, 255, 255}, true)
+	}
+	for uy := 0; uy < sz.DY; uy++ {
+		y := ui.scaleY * float64(uy)
+		vector.StrokeLine(img, 0, float32(y), float32(ui.dx), float32(y), 1, color.RGBA{0, 0, 255, 255}, true)
+	}
+	ui.backgroundImg = img
 }
 
 func (ui *UI) Update() error {
@@ -281,16 +298,28 @@ func (ui *UI) Update() error {
 }
 
 func (ui *UI) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	ui.menu.Resize(outsideWidth-MenuWidth, 0, MenuWidth, outsideHeight)
+	dx := outsideWidth - MenuWidth
+	dy := outsideHeight
+	if dx == ui.dx && dy == ui.dy {
+		return outsideWidth, outsideHeight
+	}
 
-	ui.dx = outsideWidth - MenuWidth
-	ui.dy = outsideHeight
+	ui.backgroundImg = nil
+	ui.menu.Resize(outsideWidth-MenuWidth, 0, MenuWidth, outsideHeight)
+	ui.dx = dx
+	ui.dy = dy
+
 	sz := ui.universe.Size()
 	ui.scaleX, ui.scaleY = float64(ui.dx)/float64(sz.DX), float64(ui.dy)/float64(sz.DY)
 	return outsideWidth, outsideHeight
 }
 
 func (ui *UI) Draw(screen *ebiten.Image) {
+	if ui.backgroundImg == nil {
+		ui.createBackground()
+	}
+	screen.DrawImage(ui.backgroundImg, &ebiten.DrawImageOptions{})
+
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("%.2f", ebiten.ActualTPS()))
 	pimgs := ui.imageHandler.Images()
 	for _, pimg := range pimgs {
