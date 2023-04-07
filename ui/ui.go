@@ -27,6 +27,18 @@ func New(uni *minifac.Universe) *UI {
 	//evts.OnMouseRightClicked()
 
 	infoBox := eeui.NewTextBox(evts)
+	selectItem := func(ty ImageType, res minifac.Resource) {
+		ui.selectedItem = ty
+		ui.selectedResource = res
+		infoBox.ChangeTextFunc(func() []string {
+			return []string{
+				fmt.Sprintf("Selected:"),
+				fmt.Sprintf("Item    : %s", ty),
+				fmt.Sprintf("Resource: %s", res),
+			}
+		})
+	}
+
 	btn1 := eeui.NewButton("start", evts)
 	btn1.OnClick(func() {
 		switch {
@@ -46,28 +58,32 @@ func New(uni *minifac.Universe) *UI {
 		fmt.Printf("button 2 clicked\n")
 	})
 
-	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 32, 32, evts)
+	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 48, 48, evts)
 	btnConvEast.OnClick(func() {
-		ui.selectedItem = ImageTypeConveyor_east
+		selectItem(ImageTypeConveyor_east, minifac.None)
+		//ui.selectedItem = ImageTypeConveyor_east
 	})
-	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 32, 32, evts)
+	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 48, 48, evts)
 	btnConvSouth.OnClick(func() {
-		ui.selectedItem = ImageTypeConveyor_south
+		selectItem(ImageTypeConveyor_south, minifac.None)
+		//ui.selectedItem = ImageTypeConveyor_south
 	})
-	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 32, 32, evts)
+	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 48, 48, evts)
 	btnConvWest.OnClick(func() {
-		ui.selectedItem = ImageTypeConveyor_west
+		selectItem(ImageTypeConveyor_west, minifac.None)
+		//ui.selectedItem = ImageTypeConveyor_west
 	})
-	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 32, 32, evts)
+	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 48, 48, evts)
 	btnConvNorth.OnClick(func() {
-		ui.selectedItem = ImageTypeConveyor_north
+		selectItem(ImageTypeConveyor_north, minifac.None)
+		//ui.selectedItem = ImageTypeConveyor_north
 	})
 	convLayout := eeui.NewHBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
 			Gap:     4,
 			SizeHint: eeui.SizeHint{
-				MaxHeight: 40,
+				MaxHeight: 48,
 			},
 		},
 		btnConvEast,
@@ -80,10 +96,11 @@ func New(uni *minifac.Universe) *UI {
 	var prodBtns []eeui.Widget
 	for _, bres := range minifac.BaseResources() {
 		bres := bres
-		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeProducer, resourceImageType(bres)), 32, 32, evts)
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeProducer, resourceImageType(bres)), 48, 48, evts)
 		btn.OnClick(func() {
-			ui.selectedItem = ImageTypeProducer
-			ui.selectedResource = bres
+			selectItem(ImageTypeProducer, bres)
+			// ui.selectedItem = ImageTypeProducer
+			// ui.selectedResource = bres
 		})
 		prodBtns = append(prodBtns, btn)
 	}
@@ -92,7 +109,7 @@ func New(uni *minifac.Universe) *UI {
 			Padding: 4,
 			Gap:     4,
 			SizeHint: eeui.SizeHint{
-				MaxHeight: 40,
+				MaxHeight: 48,
 			},
 		},
 		prodBtns...,
@@ -102,10 +119,11 @@ func New(uni *minifac.Universe) *UI {
 	var assBtns []eeui.Widget
 	for _, rec := range minifac.AllReceipts() {
 		rec := rec
-		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(rec.Output)), 32, 32, evts)
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(rec.Output)), 48, 48, evts)
 		btn.OnClick(func() {
-			ui.selectedItem = ImageTypeAssembler
-			ui.selectedResource = rec.Output
+			selectItem(ImageTypeAssembler, rec.Output)
+			// ui.selectedItem = ImageTypeAssembler
+			// ui.selectedResource = rec.Output
 		})
 		assBtns = append(assBtns, btn)
 	}
@@ -114,22 +132,45 @@ func New(uni *minifac.Universe) *UI {
 			Padding: 4,
 			Gap:     4,
 			SizeHint: eeui.SizeHint{
-				MaxHeight: 40,
+				MaxHeight: 48,
 			},
 		},
 		assBtns...,
 	)
 
+	//Misc
+	var miscBtns []eeui.Widget
+	{
+		btn := eeui.NewImageButton(ui.imageHandler.images[ImageTypeTrash], 48, 48, evts)
+		btn.OnClick(func() {
+			selectItem(ImageTypeTrash, minifac.None)
+			// ui.selectedItem = ImageTypeTrash
+			// ui.selectedResource = minifac.None
+		})
+		miscBtns = append(miscBtns, btn)
+	}
+	miscLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 48,
+			},
+		},
+		miscBtns...,
+	)
+
 	layout := eeui.NewVBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
-			Gap:     12,
+			Gap:     24,
 		},
 		btn1,
 		btn2,
 		convLayout,
 		prodLayout,
 		assLayout,
+		miscLayout,
 		infoBox,
 	)
 

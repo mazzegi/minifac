@@ -25,6 +25,8 @@ func CreateObject(ty ImageType, res minifac.Resource) (minifac.Object, error) {
 			return nil, fmt.Errorf("no receipt for %q", res)
 		}
 		return minifac.NewAssembler(string(res)+"_ass", rec, 5, 5), nil
+	case ImageTypeTrash:
+		return minifac.NewTrashbin("trash"), nil
 	default:
 		return nil, fmt.Errorf("invalid item type %q", ty)
 	}

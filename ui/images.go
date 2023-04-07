@@ -164,6 +164,7 @@ func (h *ImageHandler) createThumbnailOverlay(baseType ImageType, overlayType Im
 	scaleY := float64(overlayHeight) / float64(overlay.Bounds().Dy())
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Scale(scaleY, scaleY)
+	opts.GeoM.Translate(2, 2)
 	//opts.GeoM.Translate(float64(x), float64(y))
 	img.DrawImage(overlay, opts)
 	return img

@@ -65,7 +65,7 @@ func (c *TextBox) drawText(ctx *DrawContext) {
 	height2 := int(math.Ceil(float64(theight) / (64)))
 
 	x := c.rect.Min.X + 4
-	y := c.rect.Min.Y + 4
+	y := c.rect.Min.Y + 24
 
 	for i, text := range c.textFunc() {
 		pt := freetype.Pt(x, y+i*height2)
