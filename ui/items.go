@@ -27,6 +27,8 @@ func CreateObject(ty ImageType, res minifac.Resource) (minifac.Object, error) {
 		return minifac.NewAssembler(string(res)+"_ass", rec, 5, 5), nil
 	case ImageTypeTrash:
 		return minifac.NewTrashbin("trash"), nil
+	case ImageTypeFinalizer:
+		return minifac.NewFinalizer("finalizer", res), nil
 	default:
 		return nil, fmt.Errorf("invalid item type %q", ty)
 	}

@@ -171,6 +171,26 @@ func New(uni *minifac.Universe) *UI {
 		assBtns...,
 	)
 
+	//Finalizers
+	var finBtns []eeui.Widget
+	for _, res := range []minifac.Resource{minifac.Steel} {
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeFinalizer, resourceImageType(res)), 48, 48, evts)
+		btn.OnClick(func() {
+			selectItem(ImageTypeFinalizer, res)
+		})
+		finBtns = append(finBtns, btn)
+	}
+	finLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 48,
+			},
+		},
+		finBtns...,
+	)
+
 	//Misc
 	var miscBtns []eeui.Widget
 	{
@@ -201,6 +221,7 @@ func New(uni *minifac.Universe) *UI {
 		convLayout,
 		prodLayout,
 		assLayout,
+		finLayout,
 		miscLayout,
 		infoBox,
 	)

@@ -36,6 +36,7 @@ func (c *TextBox) Resize(ctx *ResizeContext) {
 }
 
 func (c *TextBox) Draw(ctx *DrawContext) {
+	//TODO: cache image (like in Button)
 	screen := ctx.Screen
 	x, y := float32(c.rect.Min.X), float32(c.rect.Min.Y)
 	w, h := float32(c.rect.Dx()), float32(c.rect.Dy())

@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 
+	"net/http"
+	_ "net/http/pprof"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazzegi/minifac"
 	"github.com/mazzegi/minifac/grid"
@@ -10,6 +13,9 @@ import (
 )
 
 func main() {
+	go func() {
+		http.ListenAndServe("localhost:6060", nil)
+	}()
 
 	uni := setupUniverse()
 	mfui := ui.New(uni)
