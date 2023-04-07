@@ -14,8 +14,8 @@ type Producer interface {
 }
 
 type Consumer interface {
-	Consume(Resource)
-	CanConsume(Resource) bool
+	ConsumeFrom(Resource, grid.Direction)
+	CanConsumeFrom(Resource, grid.Direction) bool
 	CanConsumeAny() bool
 	ConsumeAtPositions(base grid.Position) []grid.Position
 	Name() string
@@ -77,18 +77,20 @@ func (u *Universe) Tick() {
 	var prods []*grid.Object[Producer]
 	var cons []*grid.Object[Consumer]
 
-	findConsumerForPositions := func(poss []grid.Position, res Resource) (*grid.Object[Consumer], bool) {
+	findConsumerForPositions := func(fromPos grid.Position, poss []grid.Position, res Resource) (*grid.Object[Consumer], grid.Position, bool) {
 		for _, conObj := range cons {
-			if !conObj.Value.CanConsume(res) {
-				continue
-			}
+			Log("find-consumer: test %s -> %s", res, conObj.Value.Name())
 			for _, pos := range poss {
+				fromDir := grid.DirectionFrom(conObj.Position, fromPos)
+				if !conObj.Value.CanConsumeFrom(res, fromDir) {
+					continue
+				}
 				if slices.Contains(conObj.Value.ConsumeAtPositions(conObj.Position), pos) {
-					return conObj, true
+					return conObj, pos, true
 				}
 			}
 		}
-		return nil, false
+		return nil, grid.Position{}, false
 	}
 
 	for _, obj := range u.grid.Objects() {
@@ -105,13 +107,12 @@ func (u *Universe) Tick() {
 		prodPoss := prodObj.Value.ProduceAtPositions(prodObj.Position)
 		res := prodObj.Value.Resource()
 
-		//name := prodObj.Value.Name()
-		//Log("looking for consumers: %s", name)
-		conObj, ok := findConsumerForPositions(prodPoss, res)
+		conObj, pos, ok := findConsumerForPositions(prodObj.Position, prodPoss, res)
 		if !ok {
 			continue
 		}
+		fromDir := grid.DirectionFrom(conObj.Position, pos)
 		prodObj.Value.Produce()
-		conObj.Value.Consume(res)
+		conObj.Value.ConsumeFrom(res, fromDir)
 	}
 }

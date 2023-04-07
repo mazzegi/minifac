@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	uni := setupUniverse()
+	uni := setupUniverse2()
 	mfui := ui.New(uni)
 
 	ebiten.SetWindowSize(1024+ui.MenuWidth, 1024)
@@ -55,6 +55,21 @@ func setupUniverse() *minifac.Universe {
 	u.AddObject(minifac.NewConveyor("conv_steel_7", grid.East, 1), grid.P(14, 3))
 
 	u.AddObject(minifac.NewTrashbin("trashbin_1"), grid.P(15, 3))
+
+	return u
+}
+
+func setupUniverse2() *minifac.Universe {
+	size := grid.S(16, 16)
+
+	u := minifac.NewUniverse(size)
+	u.AddObject(minifac.NewIncarnationProducer("prod_iron_ore", minifac.IronOre, minifac.NewRate(1, 2), 2), grid.P(1, 1))
+	u.AddObject(minifac.NewConveyor("conv_ironore_1", grid.East, 1), grid.P(2, 1))
+
+	u.AddObject(minifac.NewAssembler("ass_iron", minifac.ReceiptIron(), 5, 5), grid.P(3, 1))
+
+	u.AddObject(minifac.NewIncarnationProducer("prod_coal", minifac.Coal, minifac.NewRate(1, 2), 2), grid.P(3, 3))
+	u.AddObject(minifac.NewConveyor("conv_coal_1", grid.North, 1), grid.P(3, 2))
 
 	return u
 }

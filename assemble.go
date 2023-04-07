@@ -69,7 +69,6 @@ func (c *Assembler) Tick() {
 	c.currTick++
 	if c.producing {
 		if c.currTick-c.lastProdTick >= c.receipt.ProductionTime {
-			//Log("%s: add: %s", c.name, c.receipt.output)
 			c.outStock.Add(c.receipt.Output, 1)
 			c.producing = false
 		}
@@ -87,19 +86,17 @@ func (c *Assembler) Tick() {
 		//start production
 		c.producing = true
 		c.lastProdTick = c.currTick
-		//Log("%s: start: %s", c.name, c.receipt.output)
 	}
 }
 
-func (c *Assembler) Consume(res Resource) {
-	if !c.CanConsume(res) {
+func (c *Assembler) ConsumeFrom(res Resource, dir grid.Direction) {
+	if !c.CanConsumeFrom(res, dir) {
 		return
 	}
-	//Log("%s: consume: %s", c.name, res)
 	c.inStocks[res].Add(res, 1)
 }
 
-func (c *Assembler) CanConsume(res Resource) bool {
+func (c *Assembler) CanConsumeFrom(res Resource, dir grid.Direction) bool {
 	_, ok := c.receipt.Input[res]
 	if !ok {
 		return false

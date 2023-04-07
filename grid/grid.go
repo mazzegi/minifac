@@ -10,7 +10,8 @@ import (
 type Direction byte
 
 const (
-	North Direction = iota
+	None Direction = iota
+	North
 	East
 	South
 	West
@@ -26,6 +27,21 @@ func S(dx, dy int) Size {
 
 func R(p Position, s Size) Rectangle {
 	return Rectangle{Position: p, Size: s}
+}
+
+func DirectionFrom(pos Position, from Position) Direction {
+	switch {
+	case pos == P(from.X+1, from.Y):
+		return West
+	case pos == P(from.X-1, from.Y):
+		return East
+	case pos == P(from.X, from.Y+1):
+		return North
+	case pos == P(from.X, from.Y-1):
+		return South
+	default:
+		return None
+	}
 }
 
 type Position struct {

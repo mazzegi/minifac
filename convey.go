@@ -48,7 +48,6 @@ func (c *Conveyor) ProduceAtPositions(base grid.Position) []grid.Position {
 }
 
 func (c *Conveyor) ConsumeAtPositions(base grid.Position) []grid.Position {
-	//return base.Neighbours()
 	return []grid.Position{base}
 }
 
@@ -66,16 +65,18 @@ func (c *Conveyor) Info() []string {
 	}
 }
 
-func (c *Conveyor) Consume(res Resource) {
-	if !c.CanConsume(res) {
+func (c *Conveyor) ConsumeFrom(res Resource, dir grid.Direction) {
+	if !c.CanConsumeFrom(res, dir) {
 		return
 	}
 	c.buffer.Enqueue(res)
-	//Log("%s: consume: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
 }
 
-func (c *Conveyor) CanConsume(Resource) bool {
-	return c.buffer.Len() < c.capacity
+func (c *Conveyor) CanConsumeFrom(res Resource, dir grid.Direction) bool {
+	if c.buffer.Len() >= c.capacity {
+		return false
+	}
+	return c.dir != dir
 }
 
 func (c *Conveyor) CanConsumeAny() bool {
@@ -84,7 +85,6 @@ func (c *Conveyor) CanConsumeAny() bool {
 
 func (c *Conveyor) Produce() (Resource, bool) {
 	res, ok := c.buffer.Dequeue()
-	//Log("%s: produce: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
 	return res, ok
 }
 

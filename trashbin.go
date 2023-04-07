@@ -42,12 +42,11 @@ func (c *Trashbin) Info() []string {
 	}
 }
 
-func (c *Trashbin) Consume(res Resource) {
+func (c *Trashbin) ConsumeFrom(res Resource, dir grid.Direction) {
 	c.total++
-	//Log("%s: consume: %s", c.name, res)
 }
 
-func (c *Trashbin) CanConsume(Resource) bool {
+func (c *Trashbin) CanConsumeFrom(Resource, grid.Direction) bool {
 	return true
 }
 
