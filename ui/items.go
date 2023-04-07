@@ -19,6 +19,12 @@ func CreateObject(ty ImageType, res minifac.Resource) (minifac.Object, error) {
 		return minifac.NewConveyor("conv", grid.North, 1), nil
 	case ImageTypeProducer:
 		return minifac.NewIncarnationProducer(string(res)+"_prod", res, minifac.NewRate(1, 2), 2), nil
+	case ImageTypeAssembler:
+		rec, ok := minifac.ReceiptFor(res)
+		if !ok {
+			return nil, fmt.Errorf("no receipt for %q", res)
+		}
+		return minifac.NewAssembler(string(res)+"_ass", rec, 5, 5), nil
 	default:
 		return nil, fmt.Errorf("invalid item type %q", ty)
 	}

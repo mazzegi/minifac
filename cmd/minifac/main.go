@@ -12,13 +12,13 @@ import (
 func main() {
 
 	uni := setupUniverse()
-	ui := ui.New(uni)
+	mfui := ui.New(uni)
 
-	ebiten.SetWindowSize(800, 640)
+	ebiten.SetWindowSize(1024+ui.MenuWidth, 1024)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSizeLimits(800, 640, -1, -1)
 	ebiten.SetWindowTitle("MiniFAC")
-	if err := ebiten.RunGame(ui); err != nil {
+	if err := ebiten.RunGame(mfui); err != nil {
 		log.Fatal(err)
 	}
 }

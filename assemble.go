@@ -17,7 +17,7 @@ func NewAssembler(name string, receipt Receipt, inCapa int, outCapa int) *Assemb
 		inStocks: make(map[Resource]*Stock),
 		outStock: NewStock(outCapa),
 	}
-	for inRes := range receipt.input {
+	for inRes := range receipt.Input {
 		a.inStocks[inRes] = NewStock(inCapa)
 	}
 	return a
@@ -68,20 +68,20 @@ func (c *Assembler) ConsumeAtPositions(base grid.Position) []grid.Position {
 func (c *Assembler) Tick() {
 	c.currTick++
 	if c.producing {
-		if c.currTick-c.lastProdTick >= c.receipt.productionTime {
+		if c.currTick-c.lastProdTick >= c.receipt.ProductionTime {
 			//Log("%s: add: %s", c.name, c.receipt.output)
-			c.outStock.Add(c.receipt.output, 1)
+			c.outStock.Add(c.receipt.Output, 1)
 			c.producing = false
 		}
-	} else if c.outStock.CanAdd(c.receipt.output, 1) {
+	} else if c.outStock.CanAdd(c.receipt.Output, 1) {
 		// see if we can produce something
-		for res, cnt := range c.receipt.input {
+		for res, cnt := range c.receipt.Input {
 			if c.inStocks[res].Amount(res) < cnt {
 				return
 			}
 		}
 		// we have enough - take it from stocks
-		for res, cnt := range c.receipt.input {
+		for res, cnt := range c.receipt.Input {
 			c.inStocks[res].Take(res, cnt)
 		}
 		//start production
@@ -100,7 +100,7 @@ func (c *Assembler) Consume(res Resource) {
 }
 
 func (c *Assembler) CanConsume(res Resource) bool {
-	_, ok := c.receipt.input[res]
+	_, ok := c.receipt.Input[res]
 	if !ok {
 		return false
 	}
@@ -112,18 +112,18 @@ func (c *Assembler) CanConsumeAny() bool {
 }
 
 func (c *Assembler) Produce() (Resource, bool) {
-	if c.outStock.Amount(c.receipt.output) > 0 {
+	if c.outStock.Amount(c.receipt.Output) > 0 {
 		//Log("%s: produce: %s", c.name, c.receipt.output)
-		c.outStock.Take(c.receipt.output, 1)
-		return c.receipt.output, true
+		c.outStock.Take(c.receipt.Output, 1)
+		return c.receipt.Output, true
 	}
 	return None, false
 }
 
 func (c *Assembler) CanProduce() bool {
-	return c.outStock.Amount(c.receipt.output) > 0
+	return c.outStock.Amount(c.receipt.Output) > 0
 }
 
 func (c *Assembler) Resource() Resource {
-	return c.receipt.output
+	return c.receipt.Output
 }

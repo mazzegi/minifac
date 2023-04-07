@@ -12,7 +12,7 @@ import (
 	"github.com/mazzegi/minifac/ui/eeui"
 )
 
-const menuWidth = 180
+const MenuWidth = 360
 
 func New(uni *minifac.Universe) *UI {
 	evts := eeui.NewHandler()
@@ -76,6 +76,7 @@ func New(uni *minifac.Universe) *UI {
 		btnConvNorth,
 	)
 
+	//Production
 	var prodBtns []eeui.Widget
 	for _, bres := range minifac.BaseResources() {
 		bres := bres
@@ -97,6 +98,28 @@ func New(uni *minifac.Universe) *UI {
 		prodBtns...,
 	)
 
+	//Assembly
+	var assBtns []eeui.Widget
+	for _, rec := range minifac.AllReceipts() {
+		rec := rec
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(rec.Output)), 32, 32, evts)
+		btn.OnClick(func() {
+			ui.selectedItem = ImageTypeAssembler
+			ui.selectedResource = rec.Output
+		})
+		assBtns = append(assBtns, btn)
+	}
+	assLayout := eeui.NewHBoxLayout(
+		eeui.BoxLayoutStyles{
+			Padding: 4,
+			Gap:     4,
+			SizeHint: eeui.SizeHint{
+				MaxHeight: 40,
+			},
+		},
+		assBtns...,
+	)
+
 	layout := eeui.NewVBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
@@ -106,6 +129,7 @@ func New(uni *minifac.Universe) *UI {
 		btn2,
 		convLayout,
 		prodLayout,
+		assLayout,
 		infoBox,
 	)
 
@@ -133,8 +157,6 @@ func New(uni *minifac.Universe) *UI {
 			}
 			ui.universe.AddObject(obj, pos)
 		} else {
-			//display info
-			//minifac.Log("info for: %s", exobj.Value.Name())
 			infoBox.ChangeTextFunc(exobj.Value.Info)
 		}
 	})
@@ -166,9 +188,9 @@ func (ui *UI) Update() error {
 }
 
 func (ui *UI) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	ui.menu.Resize(outsideWidth-menuWidth, 0, menuWidth, outsideHeight)
+	ui.menu.Resize(outsideWidth-MenuWidth, 0, MenuWidth, outsideHeight)
 
-	ui.dx = outsideWidth - menuWidth
+	ui.dx = outsideWidth - MenuWidth
 	ui.dy = outsideHeight
 	sz := ui.universe.Size()
 	ui.scaleX, ui.scaleY = float64(ui.dx)/float64(sz.DX), float64(ui.dy)/float64(sz.DY)
