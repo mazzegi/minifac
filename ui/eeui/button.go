@@ -80,19 +80,6 @@ func (c *Button) Draw(ctx *DrawContext) {
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(float64(c.rect.Min.X), float64(c.rect.Min.Y))
 	screen.DrawImage(c.img, opts)
-
-	// var cr color.RGBA
-	// switch c.state {
-	// case ButtonStateHover:
-	// 	cr = ButtonColorNormal
-	// default:
-	// 	cr = ButtonColorNormal
-	// }
-
-	// x, y := float32(c.rect.Min.X), float32(c.rect.Min.Y)
-	// w, h := float32(c.rect.Dx()), float32(c.rect.Dy())
-	// vector.DrawFilledRect(screen, x, y, w, h, cr, true)
-	// c.drawText(ctx)
 }
 
 func (c *Button) createImage(bfont *truetype.Font) {
@@ -135,41 +122,3 @@ func (c *Button) createImage(bfont *truetype.Font) {
 	}
 	c.img = img
 }
-
-// func (c *Button) drawText(ctx *DrawContext) {
-// 	fontSize := 12
-// 	dpi := 96.0
-// 	fctx := freetype.NewContext()
-// 	fctx.SetDPI(dpi)
-// 	fctx.SetFont(ctx.Font)
-// 	fctx.SetFontSize(float64(fontSize))
-// 	fctx.SetClip(ctx.Screen.Bounds())
-// 	fctx.SetDst(ctx.Screen)
-// 	fctx.SetSrc(image.Black)
-// 	fctx.SetHinting(font.HintingNone)
-
-// 	face := truetype.NewFace(ctx.Font, &truetype.Options{
-// 		Size: float64(fontSize),
-// 		DPI:  dpi,
-// 	})
-// 	metrics := face.Metrics()
-// 	_ = metrics
-// 	theight := face.Metrics().Height
-// 	var twidth fixed.Int26_6
-// 	for _, r := range c.text {
-// 		a, _ := face.GlyphAdvance(r)
-// 		twidth += a
-// 	}
-// 	width2 := int(math.Ceil(float64(twidth) / (64)))
-// 	height2 := int(math.Ceil(float64(theight) / (64)))
-
-// 	x := c.rect.Min.X + (c.rect.Dx()-int(width2))/2
-// 	y := c.rect.Min.Y + height2*3/4 + (c.rect.Dy()-height2)/2
-
-// 	pt := freetype.Pt(x, y)
-// 	_, err := fctx.DrawString(c.text, pt)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// }

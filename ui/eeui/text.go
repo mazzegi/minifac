@@ -4,9 +4,11 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"strings"
 
 	"github.com/goki/freetype"
 	"github.com/goki/freetype/truetype"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/font"
 )
@@ -19,8 +21,10 @@ func NewTextBox(evts *EventHandler) *TextBox {
 }
 
 type TextBox struct {
-	textFunc func() []string
-	rect     image.Rectangle
+	textFunc     func() []string
+	rect         image.Rectangle
+	lastTextHash string
+	img          *ebiten.Image
 }
 
 func (b *TextBox) ChangeTextFunc(fn func() []string) {
@@ -36,27 +40,37 @@ func (c *TextBox) Resize(ctx *ResizeContext) {
 }
 
 func (c *TextBox) Draw(ctx *DrawContext) {
-	//TODO: cache image (like in Button)
 	screen := ctx.Screen
-	x, y := float32(c.rect.Min.X), float32(c.rect.Min.Y)
-	w, h := float32(c.rect.Dx()), float32(c.rect.Dy())
-	vector.DrawFilledRect(screen, x, y, w, h, color.Black, true)
-	c.drawText(ctx)
+	img := c.createImage(ctx.Font)
+	opts := &ebiten.DrawImageOptions{}
+	opts.GeoM.Translate(float64(c.rect.Min.X), float64(c.rect.Min.Y))
+	screen.DrawImage(img, opts)
 }
 
-func (c *TextBox) drawText(ctx *DrawContext) {
+func (c *TextBox) textHash() string {
+	return strings.Join(c.textFunc(), ":")
+}
+
+func (c *TextBox) createImage(bfont *truetype.Font) *ebiten.Image {
+	if c.img != nil && c.textHash() == c.lastTextHash {
+		return c.img
+	}
+
+	img := ebiten.NewImage(c.rect.Dx(), c.rect.Dy())
+	vector.DrawFilledRect(img, 0, 0, float32(c.rect.Dx()), float32(c.rect.Dy()), color.Black, true)
+
 	fontSize := 12
 	dpi := 96.0
 	fctx := freetype.NewContext()
 	fctx.SetDPI(dpi)
-	fctx.SetFont(ctx.Font)
+	fctx.SetFont(bfont)
 	fctx.SetFontSize(float64(fontSize))
-	fctx.SetClip(ctx.Screen.Bounds())
-	fctx.SetDst(ctx.Screen)
+	fctx.SetClip(img.Bounds())
+	fctx.SetDst(img)
 	fctx.SetSrc(image.White)
 	fctx.SetHinting(font.HintingNone)
 
-	face := truetype.NewFace(ctx.Font, &truetype.Options{
+	face := truetype.NewFace(bfont, &truetype.Options{
 		Size: float64(fontSize),
 		DPI:  dpi,
 	})
@@ -65,9 +79,8 @@ func (c *TextBox) drawText(ctx *DrawContext) {
 	theight := face.Metrics().Height
 	height2 := int(math.Ceil(float64(theight) / (64)))
 
-	x := c.rect.Min.X + 4
-	y := c.rect.Min.Y + 24
-
+	x := 4
+	y := 24
 	for i, text := range c.textFunc() {
 		pt := freetype.Pt(x, y+i*height2)
 		_, err := fctx.DrawString(text, pt)
@@ -75,4 +88,7 @@ func (c *TextBox) drawText(ctx *DrawContext) {
 			panic(err)
 		}
 	}
+	c.lastTextHash = c.textHash()
+	c.img = img
+	return c.img
 }
