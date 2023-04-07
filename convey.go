@@ -1,6 +1,10 @@
 package minifac
 
-import "github.com/mazzegi/minifac/grid"
+import (
+	"fmt"
+
+	"github.com/mazzegi/minifac/grid"
+)
 
 var _ ProducerConsumer = &Conveyor{}
 
@@ -56,12 +60,18 @@ func (c *Conveyor) Name() string {
 	return c.name
 }
 
+func (c *Conveyor) Info() []string {
+	return []string{
+		fmt.Sprintf("Conveyor: %s", c.name),
+	}
+}
+
 func (c *Conveyor) Consume(res Resource) {
 	if !c.CanConsume(res) {
 		return
 	}
 	c.buffer.Enqueue(res)
-	Log("%s: consume: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
+	//Log("%s: consume: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
 }
 
 func (c *Conveyor) CanConsume(Resource) bool {
@@ -74,7 +84,7 @@ func (c *Conveyor) CanConsumeAny() bool {
 
 func (c *Conveyor) Produce() (Resource, bool) {
 	res, ok := c.buffer.Dequeue()
-	Log("%s: produce: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
+	//Log("%s: produce: %s: buffer=%d/%d", c.name, res, c.buffer.Len(), c.capacity)
 	return res, ok
 }
 

@@ -9,23 +9,22 @@ import (
 	"github.com/goki/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 )
 
-func NewTextBox(text string, evts *EventHandler) *TextBox {
+func NewTextBox(evts *EventHandler) *TextBox {
 	b := &TextBox{
-		text: text,
+		textFunc: func() []string { return []string{} },
 	}
 	return b
 }
 
 type TextBox struct {
-	text string
-	rect image.Rectangle
+	textFunc func() []string
+	rect     image.Rectangle
 }
 
-func (b *TextBox) ChangeText(text string) {
-	b.text = text
+func (b *TextBox) ChangeTextFunc(fn func() []string) {
+	b.textFunc = fn
 }
 
 func (c *TextBox) SizeHint() SizeHint {
@@ -63,22 +62,16 @@ func (c *TextBox) drawText(ctx *DrawContext) {
 	metrics := face.Metrics()
 	_ = metrics
 	theight := face.Metrics().Height
-	var twidth fixed.Int26_6
-	for _, r := range c.text {
-		a, _ := face.GlyphAdvance(r)
-		twidth += a
-	}
-	width2 := int(math.Ceil(float64(twidth) / (64)))
 	height2 := int(math.Ceil(float64(theight) / (64)))
-	_, _ = width2, height2
 
 	x := c.rect.Min.X + 4
 	y := c.rect.Min.Y + 4
 
-	pt := freetype.Pt(x, y)
-	_, err := fctx.DrawString(c.text, pt)
-	if err != nil {
-		panic(err)
+	for i, text := range c.textFunc() {
+		pt := freetype.Pt(x, y+i*height2)
+		_, err := fctx.DrawString(text, pt)
+		if err != nil {
+			panic(err)
+		}
 	}
-
 }

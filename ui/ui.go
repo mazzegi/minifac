@@ -26,7 +26,7 @@ func New(uni *minifac.Universe) *UI {
 	ui.ticker.Stop()
 	//evts.OnMouseRightClicked()
 
-	infoBox := eeui.NewTextBox("here goes some text", evts)
+	infoBox := eeui.NewTextBox(evts)
 	btn1 := eeui.NewButton("start", evts)
 	btn1.OnClick(func() {
 		switch {
@@ -134,8 +134,8 @@ func New(uni *minifac.Universe) *UI {
 			ui.universe.AddObject(obj, pos)
 		} else {
 			//display info
-			minifac.Log("info for: %s", exobj.Value.Name())
-			infoBox.ChangeText(fmt.Sprintf("item: %s", exobj.Value.Name()))
+			//minifac.Log("info for: %s", exobj.Value.Name())
+			infoBox.ChangeTextFunc(exobj.Value.Info)
 		}
 	})
 

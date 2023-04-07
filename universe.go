@@ -30,6 +30,7 @@ type Object interface {
 	Size() grid.Size
 	Tick()
 	Name() string
+	Info() []string
 }
 
 func NewUniverse(size grid.Size) *Universe {
@@ -104,8 +105,8 @@ func (u *Universe) Tick() {
 		prodPoss := prodObj.Value.ProduceAtPositions(prodObj.Position)
 		res := prodObj.Value.Resource()
 
-		name := prodObj.Value.Name()
-		Log("looking for consumers: %s", name)
+		//name := prodObj.Value.Name()
+		//Log("looking for consumers: %s", name)
 		conObj, ok := findConsumerForPositions(prodPoss, res)
 		if !ok {
 			continue

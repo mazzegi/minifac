@@ -1,6 +1,12 @@
 package minifac
 
-import "github.com/mazzegi/minifac/grid"
+import (
+	"fmt"
+	"sort"
+
+	"github.com/mazzegi/minifac/grid"
+	"golang.org/x/exp/maps"
+)
 
 var _ ProducerConsumer = &Assembler{}
 
@@ -35,6 +41,22 @@ func (c *Assembler) Name() string {
 	return c.name
 }
 
+func (c *Assembler) Info() []string {
+	stockRess := maps.Keys(c.inStocks)
+	sort.Slice(stockRess, func(i, j int) bool { return stockRess[i] < stockRess[j] })
+	var stock []string
+	for _, res := range stockRess {
+		stock = append(stock, fmt.Sprintf("Stock: %s: %d", res, c.inStocks[res].TotalAmount()))
+	}
+
+	info := []string{
+		fmt.Sprintf("Assembler: %s", c.name),
+		fmt.Sprintf("Receipt: %s", c.receipt.String()),
+	}
+	info = append(info, stock...)
+	return info
+}
+
 func (c *Assembler) ProduceAtPositions(base grid.Position) []grid.Position {
 	return base.Neighbours()
 }
@@ -47,7 +69,7 @@ func (c *Assembler) Tick() {
 	c.currTick++
 	if c.producing {
 		if c.currTick-c.lastProdTick >= c.receipt.productionTime {
-			Log("%s: add: %s", c.name, c.receipt.output)
+			//Log("%s: add: %s", c.name, c.receipt.output)
 			c.outStock.Add(c.receipt.output, 1)
 			c.producing = false
 		}
@@ -65,7 +87,7 @@ func (c *Assembler) Tick() {
 		//start production
 		c.producing = true
 		c.lastProdTick = c.currTick
-		Log("%s: start: %s", c.name, c.receipt.output)
+		//Log("%s: start: %s", c.name, c.receipt.output)
 	}
 }
 
@@ -73,7 +95,7 @@ func (c *Assembler) Consume(res Resource) {
 	if !c.CanConsume(res) {
 		return
 	}
-	Log("%s: consume: %s", c.name, res)
+	//Log("%s: consume: %s", c.name, res)
 	c.inStocks[res].Add(res, 1)
 }
 
@@ -91,7 +113,7 @@ func (c *Assembler) CanConsumeAny() bool {
 
 func (c *Assembler) Produce() (Resource, bool) {
 	if c.outStock.Amount(c.receipt.output) > 0 {
-		Log("%s: produce: %s", c.name, c.receipt.output)
+		//Log("%s: produce: %s", c.name, c.receipt.output)
 		c.outStock.Take(c.receipt.output, 1)
 		return c.receipt.output, true
 	}

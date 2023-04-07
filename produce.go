@@ -1,6 +1,10 @@
 package minifac
 
-import "github.com/mazzegi/minifac/grid"
+import (
+	"fmt"
+
+	"github.com/mazzegi/minifac/grid"
+)
 
 var _ Producer = &IncarnationProducer{}
 
@@ -28,7 +32,7 @@ func (p *IncarnationProducer) Tick() {
 	if cnt > 0 {
 		p.stock.Add(p.resource, cnt)
 		p.lastProdTick = p.currTick
-		Log("%s: tick: %s: stock=%d/%d", p.name, p.resource, p.stock.TotalAmount(), p.stock.capacity)
+		//Log("%s: tick: %s: stock=%d/%d", p.name, p.resource, p.stock.TotalAmount(), p.stock.capacity)
 	}
 }
 
@@ -38,6 +42,15 @@ func (p *IncarnationProducer) Size() grid.Size {
 
 func (p *IncarnationProducer) Name() string {
 	return p.name
+}
+
+func (p *IncarnationProducer) Info() []string {
+	return []string{
+		fmt.Sprintf("Incarnation Producer: %s", p.name),
+		fmt.Sprintf("Resource: %s", p.resource),
+		fmt.Sprintf("Rate    : %d/%d", p.rate.count, p.rate.perTicks),
+		fmt.Sprintf("Stock   : %d", p.stock.TotalAmount()),
+	}
 }
 
 func (p *IncarnationProducer) CanProduce() bool {
@@ -51,7 +64,7 @@ func (p *IncarnationProducer) ProduceAtPositions(base grid.Position) []grid.Posi
 func (p *IncarnationProducer) Produce() (Resource, bool) {
 	if p.stock.Amount(p.resource) > 0 {
 		p.stock.Take(p.resource, 1)
-		Log("%s: produce: %s: stock=%d/%d", p.name, p.resource, p.stock.TotalAmount(), p.stock.capacity)
+		//Log("%s: produce: %s: stock=%d/%d", p.name, p.resource, p.stock.TotalAmount(), p.stock.capacity)
 		return p.resource, true
 	}
 	return None, false
