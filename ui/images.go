@@ -97,7 +97,7 @@ func (h *ImageHandler) Images() []*PositionedImage {
 		case *minifac.IncarnationProducer:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.images[ImageTypeProducer],
+				Image:    h.createThumbnailOverlay(ImageTypeProducer, resourceImageType(obj.Resource())),
 			})
 		case *minifac.Trashbin:
 			imgs = append(imgs, &PositionedImage{
@@ -107,7 +107,7 @@ func (h *ImageHandler) Images() []*PositionedImage {
 		case *minifac.Assembler:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.images[ImageTypeAssembler],
+				Image:    h.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(obj.Resource())),
 			})
 		case *minifac.Conveyor:
 			var img *ebiten.Image

@@ -79,7 +79,6 @@ func (u *Universe) Tick() {
 
 	findConsumerForPositions := func(fromPos grid.Position, poss []grid.Position, res Resource) (*grid.Object[Consumer], grid.Position, bool) {
 		for _, conObj := range cons {
-			Log("find-consumer: test %s -> %s", res, conObj.Value.Name())
 			for _, pos := range poss {
 				fromDir := grid.DirectionFrom(conObj.Position, fromPos)
 				if !conObj.Value.CanConsumeFrom(res, fromDir) {
