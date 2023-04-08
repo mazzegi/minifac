@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"net/http"
@@ -8,11 +9,29 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazzegi/minifac"
+	"github.com/mazzegi/minifac/assets"
 	"github.com/mazzegi/minifac/grid"
 	"github.com/mazzegi/minifac/ui"
 )
 
 func main() {
+	assetsDir := flag.String("assets", "assets", "asset directory")
+	configFile := flag.String("config", "minifac.config.json", "config file")
+	flag.Parse()
+
+	assets, err := assets.Load(*assetsDir)
+	if err != nil {
+		log.Fatalf("load assets")
+	}
+	cfg, err := minifac.LoadConfigFromFile(*configFile)
+	if err != nil {
+		log.Fatalf("load config")
+	}
+	err = cfg.ValidateAssets(assets)
+	if err != nil {
+		log.Fatalf("validate assets")
+	}
+
 	go func() {
 		http.ListenAndServe("localhost:6060", nil)
 	}()
@@ -73,17 +92,17 @@ func setupUniverse() *minifac.Universe {
 	return u
 }
 
-func setupUniverse2() *minifac.Universe {
-	size := grid.S(16, 16)
+// func setupUniverse2() *minifac.Universe {
+// 	size := grid.S(16, 16)
 
-	u := minifac.NewUniverse(size)
-	u.AddObject(minifac.NewIncarnationProducer("prod_iron_ore", minifac.IronOre, minifac.NewRate(1, 2), 2), grid.P(1, 1))
-	u.AddObject(minifac.NewConveyor("conv_ironore_1", grid.East, 1), grid.P(2, 1))
+// 	u := minifac.NewUniverse(size)
+// 	u.AddObject(minifac.NewIncarnationProducer("prod_iron_ore", minifac.IronOre, minifac.NewRate(1, 2), 2), grid.P(1, 1))
+// 	u.AddObject(minifac.NewConveyor("conv_ironore_1", grid.East, 1), grid.P(2, 1))
 
-	u.AddObject(minifac.NewAssembler("ass_iron", minifac.ReceiptIron(), 5, 5), grid.P(3, 1))
+// 	u.AddObject(minifac.NewAssembler("ass_iron", minifac.ReceiptIron(), 5, 5), grid.P(3, 1))
 
-	u.AddObject(minifac.NewIncarnationProducer("prod_coal", minifac.Coal, minifac.NewRate(1, 2), 2), grid.P(3, 3))
-	u.AddObject(minifac.NewConveyor("conv_coal_1", grid.North, 1), grid.P(3, 2))
+// 	u.AddObject(minifac.NewIncarnationProducer("prod_coal", minifac.Coal, minifac.NewRate(1, 2), 2), grid.P(3, 3))
+// 	u.AddObject(minifac.NewConveyor("conv_coal_1", grid.North, 1), grid.P(3, 2))
 
-	return u
-}
+// 	return u
+// }

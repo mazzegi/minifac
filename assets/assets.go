@@ -7,11 +7,15 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/mazzegi/minifac/grid"
+	"golang.org/x/exp/maps"
 )
 
 const assetsConfigFile = "minifac.assets.json"
@@ -41,15 +45,70 @@ func Load(dir string) (*Assets, error) {
 }
 
 type assetsConfig struct {
-	Items     map[string]string `json:"items"`
+	Items struct {
+		Producer  string `json:"producer"`
+		Conveyor  string `json:"conveyor"`
+		Assembler string `json:"assembler"`
+		Finalizer string `json:"finalizer"`
+		Trash     string `json:"trash"`
+	} `json:"items"`
 	Resources map[string]string `json:"resources"`
 	Obstacles map[string]string `json:"obstacles"`
 }
 
 type Assets struct {
-	Items     map[string]*ebiten.Image
-	Resources map[string]*ebiten.Image
-	Obstacles map[string]*ebiten.Image
+	items struct {
+		producer  *ebiten.Image
+		conveyor  *ebiten.Image
+		conveyors map[grid.Direction]*ebiten.Image
+		assembler *ebiten.Image
+		finalizer *ebiten.Image
+		trash     *ebiten.Image
+	}
+	resources map[string]*ebiten.Image
+	obstacles map[string]*ebiten.Image
+}
+
+func (a *Assets) Conveyor(dir grid.Direction) *ebiten.Image {
+	return a.items.conveyors[dir]
+}
+
+func (a *Assets) Producer() *ebiten.Image {
+	return a.items.producer
+}
+
+func (a *Assets) Assembler() *ebiten.Image {
+	return a.items.assembler
+}
+
+func (a *Assets) Finalizer() *ebiten.Image {
+	return a.items.finalizer
+}
+
+func (a *Assets) Trash() *ebiten.Image {
+	return a.items.trash
+}
+
+func (a *Assets) Resource(s string) (*ebiten.Image, bool) {
+	img, ok := a.resources[s]
+	return img, ok
+}
+
+func (a *Assets) Obstacle(s string) (*ebiten.Image, bool) {
+	img, ok := a.obstacles[s]
+	return img, ok
+}
+
+func (a *Assets) ResourceNames() []string {
+	names := maps.Keys(a.resources)
+	sort.Strings(names)
+	return names
+}
+
+func (a *Assets) ObstacleNames() []string {
+	names := maps.Keys(a.obstacles)
+	sort.Strings(names)
+	return names
 }
 
 func loadImage(path string) (*ebiten.Image, error) {
@@ -75,29 +134,53 @@ func loadImage(path string) (*ebiten.Image, error) {
 }
 
 func (a *Assets) load(dir string, ac assetsConfig) error {
-	a.Items = make(map[string]*ebiten.Image)
-	a.Resources = make(map[string]*ebiten.Image)
-	a.Obstacles = make(map[string]*ebiten.Image)
-	for key, path := range ac.Items {
-		img, err := loadImage(filepath.Join(dir, path))
-		if err != nil {
-			return fmt.Errorf("load-image %q: %w", filepath.Join(dir, path), err)
-		}
-		a.Items[key] = img
+	a.resources = make(map[string]*ebiten.Image)
+	a.obstacles = make(map[string]*ebiten.Image)
+
+	err := GroupErrors(
+		func() (err error) { a.items.producer, err = loadImage(filepath.Join(dir, ac.Items.Producer)); return },
+		func() (err error) { a.items.conveyor, err = loadImage(filepath.Join(dir, ac.Items.Conveyor)); return },
+		func() (err error) { a.items.assembler, err = loadImage(filepath.Join(dir, ac.Items.Assembler)); return },
+		func() (err error) { a.items.finalizer, err = loadImage(filepath.Join(dir, ac.Items.Finalizer)); return },
+		func() (err error) { a.items.trash, err = loadImage(filepath.Join(dir, ac.Items.Trash)); return },
+	)
+	if err != nil {
+		return err
 	}
+
+	//build directed conveyors
+	a.items.conveyors = make(map[grid.Direction]*ebiten.Image)
+	a.items.conveyors[grid.East] = a.items.conveyor
+	for _, dir := range []grid.Direction{grid.South, grid.West, grid.North} {
+		img := ebiten.NewImage(a.items.conveyor.Bounds().Dx(), a.items.conveyor.Bounds().Dy())
+		var rad float64
+		switch dir {
+		case grid.South:
+			rad = math.Pi / 2
+		case grid.West:
+			rad = math.Pi
+		case grid.North:
+			rad = 3 * math.Pi / 2
+		}
+		opts := &ebiten.DrawImageOptions{}
+		opts.GeoM.Rotate(rad)
+		img.DrawImage(a.items.conveyor, opts)
+		a.items.conveyors[dir] = img
+	}
+
 	for key, path := range ac.Resources {
 		img, err := loadImage(filepath.Join(dir, path))
 		if err != nil {
 			return fmt.Errorf("load-image %q: %w", filepath.Join(dir, path), err)
 		}
-		a.Resources[key] = img
+		a.resources[key] = img
 	}
 	for key, path := range ac.Obstacles {
 		img, err := loadImage(filepath.Join(dir, path))
 		if err != nil {
 			return fmt.Errorf("load-image %q: %w", filepath.Join(dir, path), err)
 		}
-		a.Obstacles[key] = img
+		a.obstacles[key] = img
 	}
 	return nil
 }

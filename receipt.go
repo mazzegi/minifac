@@ -9,9 +9,9 @@ import (
 )
 
 type Receipt struct {
-	Input          map[Resource]int
-	Output         Resource
-	ProductionTime int
+	Input          map[Resource]int `json:"input"`
+	Output         Resource         `json:"output"`
+	ProductionTime int              `json:"production-time"`
 }
 
 func (r Receipt) String() string {

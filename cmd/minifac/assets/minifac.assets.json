@@ -1,0 +1,20 @@
+{
+    "items": {
+        "producer": "items/producer.png",
+        "conveyor": "items/conveyor.png",
+        "assembler": "items/assembler.png",
+        "finalizer": "items/finalizer.png",
+        "trash": "items/trash.png"
+    },
+    "resources": {
+        "wood": "resources/wood.png",
+        "stone": "resources/stone.png",
+        "coal": "resources/coal.png",
+        "ironore": "resources/ironore.png",
+        "iron": "resources/iron.png",
+        "steel": "resources/steel.png"
+    },
+    "obstacles": {
+        "wall": "obstacles/wall.png"
+    }
+}

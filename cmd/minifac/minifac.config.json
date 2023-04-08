@@ -1,0 +1,33 @@
+{
+    "base-resources": [
+        "wood",
+        "stone",
+        "coal",
+        "ironore"
+    ],
+    "resources": [
+        "iron",
+        "steel"
+    ],
+    "obstacles": [
+        "wall"
+    ],
+    "receipts": [
+        {
+            "input": {
+                "coal": 2,
+                "ironore": 1
+            },
+            "output": "iron",
+            "production-time": 2
+        },
+        {
+            "input": {
+                "coal": 2,
+                "iron": 1
+            },
+            "output": "steel",
+            "production-time": 3
+        }
+    ]
+}
