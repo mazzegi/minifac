@@ -28,7 +28,7 @@ type IncarnationProducer struct {
 
 func (p *IncarnationProducer) Tick() {
 	p.currTick++
-	cnt := p.rate.Count(int(p.currTick) - int(p.lastProdTick))
+	cnt := p.rate.CalcCount(int(p.currTick) - int(p.lastProdTick))
 	if cnt > 0 {
 		p.stock.Add(p.resource, cnt)
 		p.lastProdTick = p.currTick
@@ -48,7 +48,7 @@ func (p *IncarnationProducer) Info() []string {
 	return []string{
 		fmt.Sprintf("Incarnation Producer: %s", p.name),
 		fmt.Sprintf("Resource: %s", p.resource),
-		fmt.Sprintf("Rate    : %d/%d", p.rate.count, p.rate.perTicks),
+		fmt.Sprintf("Rate    : %d/%d", p.rate.Count, p.rate.PerTicks),
 		fmt.Sprintf("Stock   : %d", p.stock.TotalAmount()),
 	}
 }

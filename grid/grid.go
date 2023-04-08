@@ -7,14 +7,14 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-type Direction byte
+type Direction string
 
 const (
-	None Direction = iota
-	North
-	East
-	South
-	West
+	None  Direction = "none"
+	North Direction = "north"
+	East  Direction = "east"
+	South Direction = "south"
+	West  Direction = "west"
 )
 
 func P(x, y int) Position {
@@ -45,7 +45,8 @@ func DirectionFrom(pos Position, from Position) Direction {
 }
 
 type Position struct {
-	X, Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 func (p Position) Less(q Position) bool {
@@ -69,7 +70,8 @@ func (p Position) Neighbours() []Position {
 }
 
 type Size struct {
-	DX, DY int
+	DX int `json:"dx"`
+	DY int `json:"dy"`
 }
 
 type Rectangle struct {
@@ -123,6 +125,10 @@ func (g *Grid[T]) ContainsPosition(p Position) bool {
 
 func (g *Grid[T]) CanAddRectangle(r Rectangle) bool {
 	for _, p := range r.Positions() {
+		if !g.ContainsPosition(p) {
+			return false
+		}
+
 		if _, occ := g.objects[p]; occ {
 			return false
 		}
@@ -132,7 +138,7 @@ func (g *Grid[T]) CanAddRectangle(r Rectangle) bool {
 
 func (g *Grid[T]) Add(t T, r Rectangle) error {
 	if !g.CanAddRectangle(r) {
-		return fmt.Errorf("rectangle %s is already occupied", r)
+		return fmt.Errorf("rectangle %s is already occupied or out of range", r)
 	}
 	o := &Object[T]{Value: t, Rectangle: r}
 	for _, p := range r.Positions() {

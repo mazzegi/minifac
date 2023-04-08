@@ -12,22 +12,54 @@
     "obstacles": [
         "wall"
     ],
-    "receipts": [
-        {
+    "assemblers": {
+        "iron":{
             "input": {
                 "coal": 2,
                 "ironore": 1
-            },
-            "output": "iron",
+            },       
+            "input-stock-capacity": 5,
+            "output-stock-capacity": 5,
             "production-time": 2
         },
-        {
+        "steel":{
             "input": {
                 "coal": 2,
                 "iron": 1
-            },
-            "output": "steel",
+            },            
+            "input-stock-capacity": 5,
+            "output-stock-capacity": 5,
             "production-time": 3
         }
-    ]
+    },
+    "producers":{
+        "wood": {
+            "rate": {
+                "count": 1,
+                "per-ticks": 2
+            },
+            "stock-capacity": 2
+        },
+        "stone": {
+            "rate": {
+                "count": 1,
+                "per-ticks": 2
+            },
+            "stock-capacity": 2
+        },
+        "coal": {
+            "rate": {
+                "count": 1,
+                "per-ticks": 2
+            },
+            "stock-capacity": 2
+        },
+        "ironore": {
+            "rate": {
+                "count": 1,
+                "per-ticks": 2
+            },
+            "stock-capacity": 2
+        }
+    }
 }

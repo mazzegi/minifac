@@ -14,7 +14,16 @@ type Config struct {
 	BaseResources []Resource     `json:"base-resources"`
 	Resources     []Resource     `json:"resources"`
 	Obstacles     []ObstacleType `json:"obstacles"`
-	Receipts      []Receipt      `json:"receipts"`
+	Assemblers    map[Resource]struct {
+		Input               map[Resource]int `json:"input"`
+		InputStockCapacity  int              `json:"input-stock-capacity"`
+		OutputStockCapacity int              `json:"output-stock-capacity"`
+		ProductionTime      int              `json:"production-time"`
+	} `json:"assemblers"`
+	Producers map[Resource]struct {
+		Rate          Rate `json:"rate"`
+		StockCapacity int  `json:"stock-capacity"`
+	} `json:"producers"`
 }
 
 func LoadConfigFromFile(file string) (*Config, error) {
@@ -53,16 +62,34 @@ func (c *Config) containsResource(res Resource) bool {
 	return false
 }
 
+func (c *Config) containsObstacle(obs ObstacleType) bool {
+	for _, eobs := range c.Obstacles {
+		if obs == eobs {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Config) validate() error {
+	if !c.containsObstacle(ObstacleWall) {
+		return fmt.Errorf("config contains no wall-obstacle")
+	}
+
 	// check receipts
-	for _, rec := range c.Receipts {
-		if !c.containsResource(rec.Output) {
-			return fmt.Errorf("output resource for receipt %q not found", rec.Output)
+	for ares, rec := range c.Assemblers {
+		if !c.containsResource(ares) {
+			return fmt.Errorf("output resource for receipt %q not found", ares)
 		}
 		for res := range rec.Input {
 			if !c.containsResource(res) {
-				return fmt.Errorf("input resource %q for receipt %q not found", res, rec.Output)
+				return fmt.Errorf("input resource %q for receipt %q not found", res, ares)
 			}
+		}
+	}
+	for res := range c.Producers {
+		if !c.containsResource(res) {
+			return fmt.Errorf("producer resource %q not found", res)
 		}
 	}
 	return nil
@@ -84,6 +111,30 @@ func (c *Config) ValidateAssets(as *assets.Assets) error {
 	for _, obs := range c.Obstacles {
 		if !slices.Contains(asObsts, string(obs)) {
 			return fmt.Errorf("no obstacle asset for %q", obs)
+		}
+	}
+	return nil
+}
+
+func (c *Config) ValidatePuzzle(pzl *Puzzle) error {
+	for _, e := range pzl.Producers {
+		if _, ok := c.Producers[e.Resource]; !ok {
+			return fmt.Errorf("no producer for resource %q", e.Resource)
+		}
+	}
+	for _, e := range pzl.Assemblers {
+		if _, ok := c.Assemblers[e.Resource]; !ok {
+			return fmt.Errorf("no assembler for resource %q", e.Resource)
+		}
+	}
+	for _, e := range pzl.Finalizers {
+		if !c.containsResource(e.Resource) {
+			return fmt.Errorf("finalizer resource %q not available", e.Resource)
+		}
+	}
+	for _, e := range pzl.Obstacles {
+		if !c.containsObstacle(e.Type) {
+			return fmt.Errorf("obstacle type %q not available", e.Type)
 		}
 	}
 	return nil

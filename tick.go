@@ -1,17 +1,17 @@
 package minifac
 
 func NewRate(count, perTicks int) Rate {
-	return Rate{count: count, perTicks: perTicks}
+	return Rate{Count: count, PerTicks: perTicks}
 }
 
 type Rate struct {
-	count    int
-	perTicks int
+	Count    int `json:"count"`
+	PerTicks int `json:"per-ticks"`
 }
 
-func (r Rate) Count(ticks int) int {
-	if ticks%r.perTicks != 0 {
+func (r Rate) CalcCount(ticks int) int {
+	if ticks%r.PerTicks != 0 {
 		return 0
 	}
-	return r.count * ticks / r.perTicks
+	return r.Count * ticks / r.PerTicks
 }
