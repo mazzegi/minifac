@@ -1,0 +1,66 @@
+{
+    "size": {
+        "dx": 16,
+        "dy": 16
+    },
+    "producers":[
+        {
+            "resource": "coal",
+            "position": {
+                "x": 2,
+                "y": 2
+            }
+        },
+        {
+            "resource": "stone",
+            "position": {
+                "x": 2,
+                "y": 10
+            }
+        }
+    ],
+    "assemblers": [
+        {
+            "resource": "steel",
+            "position": {
+                "x": 6,
+                "y": 6
+            }
+        }
+    ],
+    "trashbins": [
+        {
+            "position": {
+                "x": 12,
+                "y": 4
+            }
+        }
+    ],
+    "finalizers": [
+        {
+            "resource": "steel",
+            "position": {
+                "x": 12,
+                "y": 12
+            }
+        }
+    ],
+    "conveyors": [
+        {
+            "direction": "south",
+            "position": {
+                "x": 4,
+                "y": 4
+            }
+        }
+    ],
+    "obstacles": [
+        {
+            "type": "wall",
+            "position": {
+                "x": 5,
+                "y": 4
+            }
+        }
+    ]
+}

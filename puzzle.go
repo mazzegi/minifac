@@ -56,7 +56,7 @@ type Puzzle struct {
 }
 
 func (p *Puzzle) Universe(cfg *Config) (*Universe, error) {
-	// add 2 in each direction for walls
+	// add 2 in each direction for bounding walls
 	size := grid.S(p.Size.DX+2, p.Size.DY+2)
 	u := NewUniverse(size)
 

@@ -114,7 +114,7 @@ func (c *Assembler) Produce() (Resource, bool) {
 		c.outStock.Take(c.receipt.Output, 1)
 		return c.receipt.Output, true
 	}
-	return None, false
+	return NoResource, false
 }
 
 func (c *Assembler) CanProduce() bool {

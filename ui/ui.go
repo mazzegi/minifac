@@ -10,18 +10,21 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/mazzegi/minifac"
+	"github.com/mazzegi/minifac/assets"
 	"github.com/mazzegi/minifac/grid"
 	"github.com/mazzegi/minifac/ui/eeui"
 )
 
 const MenuWidth = 360
 
-func New(uni *minifac.Universe) *UI {
+func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *UI {
 	evts := eeui.NewHandler()
 	ui := &UI{
 		eventHandler: evts,
 		universe:     uni,
-		imageHandler: NewImageHandler(uni),
+		assets:       assets,
+		config:       config,
+		imageHandler: NewImageHandler(uni, assets),
 		ticker:       time.NewTicker(500 * time.Millisecond),
 		running:      false,
 	}
@@ -103,19 +106,19 @@ func New(uni *minifac.Universe) *UI {
 
 	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 48, 48, evts)
 	btnConvEast.OnClick(func() {
-		selectItem(ImageTypeConveyor_east, minifac.None)
+		selectItem(ImageTypeConveyor_east, minifac.NoResource)
 	})
 	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 48, 48, evts)
 	btnConvSouth.OnClick(func() {
-		selectItem(ImageTypeConveyor_south, minifac.None)
+		selectItem(ImageTypeConveyor_south, minifac.NoResource)
 	})
 	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 48, 48, evts)
 	btnConvWest.OnClick(func() {
-		selectItem(ImageTypeConveyor_west, minifac.None)
+		selectItem(ImageTypeConveyor_west, minifac.NoResource)
 	})
 	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 48, 48, evts)
 	btnConvNorth.OnClick(func() {
-		selectItem(ImageTypeConveyor_north, minifac.None)
+		selectItem(ImageTypeConveyor_north, minifac.NoResource)
 	})
 	convLayout := eeui.NewHBoxLayout(
 		eeui.BoxLayoutStyles{
@@ -198,7 +201,7 @@ func New(uni *minifac.Universe) *UI {
 	{
 		btn := eeui.NewImageButton(ui.imageHandler.images[ImageTypeTrash], 48, 48, evts)
 		btn.OnClick(func() {
-			selectItem(ImageTypeTrash, minifac.None)
+			selectItem(ImageTypeTrash, minifac.NoResource)
 		})
 		miscBtns = append(miscBtns, btn)
 	}
@@ -245,7 +248,7 @@ func New(uni *minifac.Universe) *UI {
 		exobj, ok := ui.universe.ObjectAt(pos)
 		if !ok {
 			// add new object
-			obj, err := CreateObject(ui.selectedItem, ui.selectedResource)
+			obj, err := ui.CreateObject(ui.selectedItem, ui.selectedResource)
 			if err != nil {
 				minifac.Log("ERROR: create-object: %v", err)
 				return
@@ -263,13 +266,15 @@ type UI struct {
 	dx, dy           int
 	scaleX, scaleY   float64
 	eventHandler     *eeui.EventHandler
+	assets           *assets.Assets
+	config           *minifac.Config
 	universe         *minifac.Universe
 	backgroundImg    *ebiten.Image
 	imageHandler     *ImageHandler
 	ticker           *time.Ticker
 	running          bool
 	menu             *eeui.Form
-	selectedItem     ImageType
+	selectedItem     ItemType
 	selectedResource minifac.Resource
 }
 

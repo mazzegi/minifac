@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazzegi/minifac"
+	"github.com/mazzegi/minifac/assets"
 	"github.com/mazzegi/minifac/grid"
 )
 
@@ -76,9 +77,10 @@ func mustLoadImage(typ ImageType) *ebiten.Image {
 	return mustLoadImageAsset(path)
 }
 
-func NewImageHandler(u *minifac.Universe) *ImageHandler {
+func NewImageHandler(u *minifac.Universe, assets *assets.Assets) *ImageHandler {
 	ih := &ImageHandler{
 		universe:          u,
+		assets:            assets,
 		images:            make(map[ImageType]*ebiten.Image),
 		overlays:          make(map[imageOverlay]*ebiten.Image),
 		thumbnailOverlays: make(map[imageOverlay]*ebiten.Image),
@@ -97,6 +99,7 @@ type imageOverlay struct {
 
 type ImageHandler struct {
 	universe          *minifac.Universe
+	assets            *assets.Assets
 	images            map[ImageType]*ebiten.Image
 	overlays          map[imageOverlay]*ebiten.Image
 	thumbnailOverlays map[imageOverlay]*ebiten.Image

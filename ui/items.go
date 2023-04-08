@@ -7,27 +7,43 @@ import (
 	"github.com/mazzegi/minifac/grid"
 )
 
-func CreateObject(ty ImageType, res minifac.Resource) (minifac.Object, error) {
+type ItemType string
+
+const (
+	ItemTypeProducer       ItemType = "producer"
+	ItemTypeAssembler      ItemType = "assembler"
+	ItemTypeTrash          ItemType = "trash"
+	ItemTypeFinalizer      ItemType = "finalizer"
+	ItemTypeConveyor_east  ItemType = "conveyor_east"
+	ItemTypeConveyor_north ItemType = "conveyor_north"
+	ItemTypeConveyor_south ItemType = "conveyor_south"
+	ItemTypeConveyor_west  ItemType = "conveyor_west"
+)
+
+func (ui *UI) CreateObject(ty ItemType, res minifac.Resource) (minifac.Object, error) {
 	switch ty {
-	case ImageTypeConveyor_east:
+	case ItemTypeConveyor_east:
 		return minifac.NewConveyor("conv", grid.East, 1), nil
-	case ImageTypeConveyor_south:
+	case ItemTypeConveyor_south:
 		return minifac.NewConveyor("conv", grid.South, 1), nil
-	case ImageTypeConveyor_west:
+	case ItemTypeConveyor_west:
 		return minifac.NewConveyor("conv", grid.West, 1), nil
-	case ImageTypeConveyor_north:
+	case ItemTypeConveyor_north:
 		return minifac.NewConveyor("conv", grid.North, 1), nil
-	case ImageTypeProducer:
-		return minifac.NewIncarnationProducer(string(res)+"_prod", res, minifac.NewRate(1, 2), 2), nil
-	case ImageTypeAssembler:
-		rec, ok := minifac.ReceiptFor(res)
-		if !ok {
-			return nil, fmt.Errorf("no receipt for %q", res)
+	case ItemTypeProducer:
+		conf := ui.config.Producers[res]
+		return minifac.NewIncarnationProducer("prod", res, conf.Rate, conf.StockCapacity), nil
+	case ItemTypeAssembler:
+		conf := ui.config.Assemblers[res]
+		rec := minifac.Receipt{
+			Input:          conf.Input,
+			Output:         res,
+			ProductionTime: conf.ProductionTime,
 		}
-		return minifac.NewAssembler(string(res)+"_ass", rec, 5, 5), nil
-	case ImageTypeTrash:
+		return minifac.NewAssembler("ass", rec, conf.InputStockCapacity, conf.OutputStockCapacity), nil
+	case ItemTypeTrash:
 		return minifac.NewTrashbin("trash"), nil
-	case ImageTypeFinalizer:
+	case ItemTypeFinalizer:
 		return minifac.NewFinalizer("finalizer", res), nil
 	default:
 		return nil, fmt.Errorf("invalid item type %q", ty)

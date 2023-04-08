@@ -95,7 +95,7 @@ func (c *Conveyor) CanProduce() bool {
 func (c *Conveyor) Resource() Resource {
 	res, ok := c.buffer.Peek()
 	if !ok {
-		return None
+		return NoResource
 	}
 	return res
 }

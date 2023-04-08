@@ -24,40 +24,40 @@ func (r Receipt) String() string {
 	return fmt.Sprintf("%s -> %s: %d", strings.Join(in, " + "), r.Output, r.ProductionTime)
 }
 
-func AllReceipts() []Receipt {
-	return []Receipt{
-		ReceiptIron(),
-		ReceiptSteel(),
-	}
-}
+// func AllReceipts() []Receipt {
+// 	return []Receipt{
+// 		ReceiptIron(),
+// 		ReceiptSteel(),
+// 	}
+// }
 
-func ReceiptFor(res Resource) (Receipt, bool) {
-	for _, rec := range AllReceipts() {
-		if rec.Output == res {
-			return rec, true
-		}
-	}
-	return Receipt{}, false
-}
+// func ReceiptFor(res Resource) (Receipt, bool) {
+// 	for _, rec := range AllReceipts() {
+// 		if rec.Output == res {
+// 			return rec, true
+// 		}
+// 	}
+// 	return Receipt{}, false
+// }
 
-func ReceiptIron() Receipt {
-	return Receipt{
-		Input: map[Resource]int{
-			Coal:    2,
-			IronOre: 1,
-		},
-		Output:         Iron,
-		ProductionTime: 2,
-	}
-}
+// func ReceiptIron() Receipt {
+// 	return Receipt{
+// 		Input: map[Resource]int{
+// 			Coal:    2,
+// 			IronOre: 1,
+// 		},
+// 		Output:         Iron,
+// 		ProductionTime: 2,
+// 	}
+// }
 
-func ReceiptSteel() Receipt {
-	return Receipt{
-		Input: map[Resource]int{
-			Coal: 2,
-			Iron: 1,
-		},
-		Output:         Steel,
-		ProductionTime: 3,
-	}
-}
+// func ReceiptSteel() Receipt {
+// 	return Receipt{
+// 		Input: map[Resource]int{
+// 			Coal: 2,
+// 			Iron: 1,
+// 		},
+// 		Output:         Steel,
+// 		ProductionTime: 3,
+// 	}
+// }

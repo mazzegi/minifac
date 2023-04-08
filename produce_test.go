@@ -24,28 +24,28 @@ func TestProduce(t *testing.T) {
 	}{
 		{
 			stock:    NewStock(5),
-			resource: Wood,
+			resource: "Wood",
 			rate:     NewRate(2, 1),
 			ticks:    2,
 			expStock: 4,
 		},
 		{
 			stock:    NewStock(5),
-			resource: Wood,
+			resource: "Wood",
 			rate:     NewRate(2, 1),
 			ticks:    3,
 			expStock: 5,
 		},
 		{
 			stock:    NewStock(5),
-			resource: Wood,
+			resource: "Wood",
 			rate:     NewRate(2, 1),
 			ticks:    10,
 			expStock: 5,
 		},
 		{
 			stock:    NewStock(5),
-			resource: Wood,
+			resource: "Wood",
 			rate:     NewRate(1, 3),
 			ticks:    10,
 			expStock: 3,
