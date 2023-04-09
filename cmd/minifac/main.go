@@ -49,6 +49,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("create universe: %v", err)
 	}
+	uni.LockAllObjects()
 	mfui := ui.New(uni, assets, cfg)
 
 	ebiten.SetWindowSize(1024+ui.MenuWidth, 1024)

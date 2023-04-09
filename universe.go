@@ -35,13 +35,21 @@ type Object interface {
 
 func NewUniverse(size grid.Size) *Universe {
 	u := &Universe{
-		grid: grid.New[Object](size),
+		grid:   grid.New[Object](size),
+		locked: make(map[grid.Position]bool),
 	}
 	return u
 }
 
 type Universe struct {
-	grid *grid.Grid[Object]
+	grid   *grid.Grid[Object]
+	locked map[grid.Position]bool
+}
+
+func (u *Universe) LockAllObjects() {
+	for _, obj := range u.grid.Objects() {
+		u.locked[obj.Position] = true
+	}
 }
 
 func (u *Universe) Size() grid.Size {
@@ -58,6 +66,9 @@ func (u *Universe) AddObject(o Object, at grid.Position) error {
 }
 
 func (u *Universe) DeleteAt(p grid.Position) {
+	if u.locked[p] {
+		return
+	}
 	u.grid.DeleteAt(p)
 }
 
