@@ -151,8 +151,10 @@ func (a *Assets) load(dir string, ac assetsConfig) error {
 	//build directed conveyors
 	a.items.conveyors = make(map[grid.Direction]*ebiten.Image)
 	a.items.conveyors[grid.East] = a.items.conveyor
+	confBounds := a.items.conveyor.Bounds()
+	cdx, cdy := confBounds.Dx(), confBounds.Dy()
 	for _, dir := range []grid.Direction{grid.South, grid.West, grid.North} {
-		img := ebiten.NewImage(a.items.conveyor.Bounds().Dx(), a.items.conveyor.Bounds().Dy())
+		img := ebiten.NewImage(cdx, cdy)
 		var rad float64
 		switch dir {
 		case grid.South:
@@ -163,7 +165,9 @@ func (a *Assets) load(dir string, ac assetsConfig) error {
 			rad = 3 * math.Pi / 2
 		}
 		opts := &ebiten.DrawImageOptions{}
+		opts.GeoM.Translate(-float64(cdx)/2, -float64(cdy)/2)
 		opts.GeoM.Rotate(rad)
+		opts.GeoM.Translate(float64(cdx)/2, float64(cdy)/2)
 		img.DrawImage(a.items.conveyor, opts)
 		a.items.conveyors[dir] = img
 	}

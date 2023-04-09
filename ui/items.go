@@ -20,6 +20,19 @@ const (
 	ItemTypeConveyor_west  ItemType = "conveyor_west"
 )
 
+func conveyorType(dir grid.Direction) ItemType {
+	switch dir {
+	case grid.South:
+		return ItemTypeConveyor_south
+	case grid.West:
+		return ItemTypeConveyor_west
+	case grid.North:
+		return ItemTypeConveyor_north
+	default:
+		return ItemTypeConveyor_east
+	}
+}
+
 func (ui *UI) CreateObject(ty ItemType, res minifac.Resource) (minifac.Object, error) {
 	switch ty {
 	case ItemTypeConveyor_east:

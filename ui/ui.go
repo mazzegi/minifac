@@ -13,6 +13,8 @@ import (
 	"github.com/mazzegi/minifac/assets"
 	"github.com/mazzegi/minifac/grid"
 	"github.com/mazzegi/minifac/ui/eeui"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 const MenuWidth = 360
@@ -31,7 +33,7 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 	ui.ticker.Stop()
 
 	infoBox := eeui.NewTextBox(evts)
-	selectItem := func(ty ImageType, res minifac.Resource) {
+	selectItem := func(ty ItemType, res minifac.Resource) {
 		ui.selectedItem = ty
 		ui.selectedResource = res
 		infoBox.ChangeTextFunc(func() []string {
@@ -104,22 +106,15 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 		btnBase, btnFaster,
 	)
 
-	btnConvEast := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_east), 48, 48, evts)
-	btnConvEast.OnClick(func() {
-		selectItem(ImageTypeConveyor_east, minifac.NoResource)
-	})
-	btnConvSouth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_south), 48, 48, evts)
-	btnConvSouth.OnClick(func() {
-		selectItem(ImageTypeConveyor_south, minifac.NoResource)
-	})
-	btnConvWest := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_west), 48, 48, evts)
-	btnConvWest.OnClick(func() {
-		selectItem(ImageTypeConveyor_west, minifac.NoResource)
-	})
-	btnConvNorth := eeui.NewImageButton(mustLoadImage(ImageTypeConveyor_north), 48, 48, evts)
-	btnConvNorth.OnClick(func() {
-		selectItem(ImageTypeConveyor_north, minifac.NoResource)
-	})
+	var convBtns []eeui.Widget
+	for _, dir := range []grid.Direction{grid.East, grid.South, grid.West, grid.North} {
+		dir := dir
+		btn := eeui.NewImageButton(ui.assets.Conveyor(dir), 48, 48, evts)
+		btn.OnClick(func() {
+			selectItem(conveyorType(dir), minifac.NoResource)
+		})
+		convBtns = append(convBtns, btn)
+	}
 	convLayout := eeui.NewHBoxLayout(
 		eeui.BoxLayoutStyles{
 			Padding: 4,
@@ -128,19 +123,16 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 				MaxHeight: 48,
 			},
 		},
-		btnConvEast,
-		btnConvSouth,
-		btnConvWest,
-		btnConvNorth,
+		convBtns...,
 	)
 
 	//Production
 	var prodBtns []eeui.Widget
-	for _, bres := range minifac.BaseResources() {
+	for _, bres := range ui.config.BaseResources {
 		bres := bres
-		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeProducer, resourceImageType(bres)), 48, 48, evts)
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ItemTypeProducer, bres), 48, 48, evts)
 		btn.OnClick(func() {
-			selectItem(ImageTypeProducer, bres)
+			selectItem(ItemTypeProducer, bres)
 		})
 		prodBtns = append(prodBtns, btn)
 	}
@@ -157,11 +149,13 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 
 	//Assembly
 	var assBtns []eeui.Widget
-	for _, rec := range minifac.AllReceipts() {
-		rec := rec
-		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(rec.Output)), 48, 48, evts)
+	assRess := maps.Keys(ui.config.Assemblers)
+	slices.Sort(assRess)
+	for _, res := range assRess {
+		res := res
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ItemTypeAssembler, res), 48, 48, evts)
 		btn.OnClick(func() {
-			selectItem(ImageTypeAssembler, rec.Output)
+			selectItem(ItemTypeAssembler, res)
 		})
 		assBtns = append(assBtns, btn)
 	}
@@ -178,10 +172,11 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 
 	//Finalizers
 	var finBtns []eeui.Widget
-	for _, res := range []minifac.Resource{minifac.Steel} {
-		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ImageTypeFinalizer, resourceImageType(res)), 48, 48, evts)
+	for _, res := range ui.config.Resources {
+		res := res
+		btn := eeui.NewImageButton(ui.imageHandler.createThumbnailOverlay(ItemTypeFinalizer, res), 48, 48, evts)
 		btn.OnClick(func() {
-			selectItem(ImageTypeFinalizer, res)
+			selectItem(ItemTypeFinalizer, res)
 		})
 		finBtns = append(finBtns, btn)
 	}
@@ -199,9 +194,9 @@ func New(uni *minifac.Universe, assets *assets.Assets, config *minifac.Config) *
 	//Misc
 	var miscBtns []eeui.Widget
 	{
-		btn := eeui.NewImageButton(ui.imageHandler.images[ImageTypeTrash], 48, 48, evts)
+		btn := eeui.NewImageButton(ui.assets.Trash(), 48, 48, evts)
 		btn.OnClick(func() {
-			selectItem(ImageTypeTrash, minifac.NoResource)
+			selectItem(ItemTypeTrash, minifac.NoResource)
 		})
 		miscBtns = append(miscBtns, btn)
 	}

@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"path/filepath"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazzegi/minifac"
@@ -10,149 +10,106 @@ import (
 	"github.com/mazzegi/minifac/grid"
 )
 
-type ImageType string
-
-const (
-	ImageTypeProducer       ImageType = "producer.png"
-	ImageTypeAssembler      ImageType = "assembler.png"
-	ImageTypeTrash          ImageType = "trash.png"
-	ImageTypeFinalizer      ImageType = "finalizer.png"
-	ImageTypeConveyor_east  ImageType = "conveyor_east.png"
-	ImageTypeConveyor_north ImageType = "conveyor_north.png"
-	ImageTypeConveyor_south ImageType = "conveyor_south.png"
-	ImageTypeConveyor_west  ImageType = "conveyor_west.png"
-	ImageTypeWood           ImageType = "wood.png"
-	ImageTypeCoal           ImageType = "coal.png"
-	ImageTypeStone          ImageType = "stone.png"
-	ImageTypeIronOre        ImageType = "ironore.png"
-	ImageTypeIron           ImageType = "iron.png"
-	ImageTypeSteel          ImageType = "steel.png"
-	ImageTypeWall           ImageType = "wall.png"
-)
-
-var allImageTypes = []ImageType{
-	ImageTypeProducer,
-	ImageTypeAssembler,
-	ImageTypeTrash,
-	ImageTypeFinalizer,
-	ImageTypeConveyor_east,
-	ImageTypeConveyor_north,
-	ImageTypeConveyor_south,
-	ImageTypeConveyor_west,
-	ImageTypeWood,
-	ImageTypeCoal,
-	ImageTypeStone,
-	ImageTypeIronOre,
-	ImageTypeIron,
-	ImageTypeSteel,
-	ImageTypeWall,
-}
-
-func resourceImageType(res minifac.Resource) ImageType {
-	switch res {
-	case minifac.Wood:
-		return ImageTypeWood
-	case minifac.Stone:
-		return ImageTypeStone
-	case minifac.Coal:
-		return ImageTypeCoal
-	case minifac.IronOre:
-		return ImageTypeIronOre
-	case minifac.Iron:
-		return ImageTypeIron
-	case minifac.Steel:
-		return ImageTypeSteel
-	default:
-		return ""
-	}
-}
-
 type PositionedImage struct {
 	Position grid.Position
 	Image    *ebiten.Image
-}
-
-func mustLoadImage(typ ImageType) *ebiten.Image {
-	path := filepath.Join("assets", string(typ))
-	return mustLoadImageAsset(path)
 }
 
 func NewImageHandler(u *minifac.Universe, assets *assets.Assets) *ImageHandler {
 	ih := &ImageHandler{
 		universe:          u,
 		assets:            assets,
-		images:            make(map[ImageType]*ebiten.Image),
 		overlays:          make(map[imageOverlay]*ebiten.Image),
 		thumbnailOverlays: make(map[imageOverlay]*ebiten.Image),
-	}
-	for _, it := range allImageTypes {
-		img := mustLoadImage(it)
-		ih.images[it] = img
 	}
 	return ih
 }
 
 type imageOverlay struct {
-	imageType   ImageType
-	overlayType ImageType
+	imageType   ItemType
+	overlayType minifac.Resource
 }
 
 type ImageHandler struct {
 	universe          *minifac.Universe
 	assets            *assets.Assets
-	images            map[ImageType]*ebiten.Image
 	overlays          map[imageOverlay]*ebiten.Image
 	thumbnailOverlays map[imageOverlay]*ebiten.Image
 }
 
+func (h *ImageHandler) mustItemImage(item ItemType) *ebiten.Image {
+	switch item {
+	case ItemTypeProducer:
+		return h.assets.Producer()
+	case ItemTypeAssembler:
+		return h.assets.Assembler()
+	case ItemTypeTrash:
+		return h.assets.Trash()
+	case ItemTypeFinalizer:
+		return h.assets.Finalizer()
+	case ItemTypeConveyor_east:
+		return h.assets.Conveyor(grid.East)
+	case ItemTypeConveyor_north:
+		return h.assets.Conveyor(grid.North)
+	case ItemTypeConveyor_south:
+		return h.assets.Conveyor(grid.South)
+	case ItemTypeConveyor_west:
+		return h.assets.Conveyor(grid.West)
+	default:
+		log.Fatalf("no image for type %q", item)
+		return nil
+	}
+}
+
 func (h *ImageHandler) Images() []*PositionedImage {
-	//TODO: cache images
 	imgs := []*PositionedImage{}
 	for _, gobj := range h.universe.AllObjects() {
 		switch obj := gobj.Value.(type) {
 		case *minifac.IncarnationProducer:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.createThumbnailOverlay(ImageTypeProducer, resourceImageType(obj.Resource())),
+				Image:    h.createThumbnailOverlay(ItemTypeProducer, obj.Resource()),
 			})
 		case *minifac.Trashbin:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.images[ImageTypeTrash],
+				Image:    h.mustItemImage(ItemTypeTrash),
 			})
 		case *minifac.Obstacle:
 			switch obj.Type() {
 			default:
-				imgs = append(imgs, &PositionedImage{
-					Position: gobj.Position,
-					Image:    h.images[ImageTypeWall],
-				})
+				if img, ok := h.assets.Obstacle(string(minifac.ObstacleWall)); ok {
+					imgs = append(imgs, &PositionedImage{
+						Position: gobj.Position,
+						Image:    img,
+					})
+				}
 			}
 		case *minifac.Finalizer:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.createThumbnailOverlay(ImageTypeFinalizer, resourceImageType(obj.Resource())),
+				Image:    h.createThumbnailOverlay(ItemTypeFinalizer, obj.Resource()),
 			})
 		case *minifac.Assembler:
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
-				Image:    h.createThumbnailOverlay(ImageTypeAssembler, resourceImageType(obj.Resource())),
+				Image:    h.createThumbnailOverlay(ItemTypeAssembler, obj.Resource()),
 			})
 		case *minifac.Conveyor:
-			var convType ImageType
+			var convType ItemType
 			switch obj.Dir() {
 			case grid.East:
-				convType = ImageTypeConveyor_east
+				convType = ItemTypeConveyor_east
 			case grid.South:
-				convType = ImageTypeConveyor_south
+				convType = ItemTypeConveyor_south
 			case grid.West:
-				convType = ImageTypeConveyor_west
+				convType = ItemTypeConveyor_west
 			case grid.North:
-				convType = ImageTypeConveyor_north
+				convType = ItemTypeConveyor_north
 			default:
 				panic(fmt.Errorf("unknown direction %v", obj.Dir()))
 			}
-			img := h.createOverlay(convType, resourceImageType(obj.Resource()))
+			img := h.createOverlay(convType, obj.Resource())
 			imgs = append(imgs, &PositionedImage{
 				Position: gobj.Position,
 				Image:    img,
@@ -165,13 +122,12 @@ func (h *ImageHandler) Images() []*PositionedImage {
 	return imgs
 }
 
-func (h *ImageHandler) createOverlay(baseType ImageType, overlayType ImageType) *ebiten.Image {
-	if img, ok := h.overlays[imageOverlay{baseType, overlayType}]; ok {
+func (h *ImageHandler) createOverlay(itemType ItemType, res minifac.Resource) *ebiten.Image {
+	if img, ok := h.overlays[imageOverlay{itemType, res}]; ok {
 		return img
 	}
-
-	base := h.images[baseType]
-	overlay, ok := h.images[overlayType]
+	base := h.mustItemImage(itemType)
+	overlay, ok := h.assets.Resource(string(res))
 	if !ok {
 		return base
 	}
@@ -183,16 +139,19 @@ func (h *ImageHandler) createOverlay(baseType ImageType, overlayType ImageType) 
 	opts := &ebiten.DrawImageOptions{}
 	opts.GeoM.Translate(float64(x), float64(y))
 	img.DrawImage(overlay, opts)
-	h.overlays[imageOverlay{baseType, overlayType}] = img
+	h.overlays[imageOverlay{itemType, res}] = img
 	return img
 }
 
-func (h *ImageHandler) createThumbnailOverlay(baseType ImageType, overlayType ImageType) *ebiten.Image {
-	if img, ok := h.thumbnailOverlays[imageOverlay{baseType, overlayType}]; ok {
+func (h *ImageHandler) createThumbnailOverlay(itemType ItemType, res minifac.Resource) *ebiten.Image {
+	if img, ok := h.thumbnailOverlays[imageOverlay{itemType, res}]; ok {
 		return img
 	}
-	base := h.images[baseType]
-	overlay := h.images[overlayType]
+	base := h.mustItemImage(itemType)
+	overlay, ok := h.assets.Resource(string(res))
+	if !ok {
+		return base
+	}
 
 	img := ebiten.NewImageFromImage(base)
 	baseBounds := base.Bounds()
@@ -204,6 +163,6 @@ func (h *ImageHandler) createThumbnailOverlay(baseType ImageType, overlayType Im
 	opts.GeoM.Scale(scaleY, scaleY)
 	opts.GeoM.Translate(4, 4)
 	img.DrawImage(overlay, opts)
-	h.thumbnailOverlays[imageOverlay{baseType, overlayType}] = img
+	h.thumbnailOverlays[imageOverlay{itemType, res}] = img
 	return img
 }
